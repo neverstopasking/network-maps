@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Epstein Network Dashboard</title>
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #f59e0b;
+      --border: #374151;
+      --core: #ef4444;
+      --finance: #3b82f6;
+      --intel: #8b5cf6;
+      --state: #10b981;
+      --ops: #f59e0b;
+      --testimony: #9ca3af;
+      --file: #ec4899;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    a { color: #93c5fd; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .page {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      min-height: 100vh;
+    }
+    .left {
+      padding: 20px 20px 10px;
+      border-right: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(17,24,39,0.9), rgba(15,23,42,1));
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+    }
+    .right {
+      padding: 20px;
+      overflow: auto;
+      max-height: 100vh;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      line-height: 1.1;
+    }
+    h2 { margin: 24px 0 10px; font-size: 1.15rem; }
+    h3 { margin: 0 0 8px; font-size: 1rem; }
+    p { margin: 0 0 10px; }
+    .subtle { color: var(--muted); }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 16px 0 12px;
+    }
+    .controls input, .controls select, .controls button {
+      width: 100%;
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+    }
+    .controls .wide { grid-column: 1 / -1; }
+    .controls button { cursor: pointer; }
+    .controls button:hover { background: #273449; }
+    #network {
+      height: 540px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: radial-gradient(circle at top, rgba(31,41,55,0.9), rgba(15,23,42,1));
+      box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 18px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .panel {
+      background: rgba(17,24,39,0.92);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 14px;
+    }
+    .tag {
+      background: #0b1220;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+    .index {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin: 14px 0 22px;
+    }
+    .index a {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(17,24,39,0.85);
+      border: 1px solid var(--border);
+    }
+    .section-card {
+      scroll-margin-top: 20px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 14px;
+      background: rgba(17,24,39,0.9);
+    }
+    .section-card:target {
+      outline: 2px solid var(--accent);
+      background: rgba(33,24,7,0.35);
+    }
+    .small { font-size: 0.9rem; }
+    ul.compact {
+      margin: 8px 0 0 18px;
+      padding: 0;
+    }
+    .note {
+      border-left: 4px solid var(--accent);
+      padding-left: 12px;
+      color: var(--muted);
+      margin-top: 12px;
+    }
+    .footer-space { height: 40px; }
+    @media (max-width: 980px) {
+      .page { grid-template-columns: 1fr; }
+      .left {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      .right { max-height: none; }
+      #network { height: 420px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="left">
+      <h1>Epstein Network Dashboard</h1>
+      <p class="subtle">Interactive map with clustered layers, evidence styling, click-through dossiers, and a documented versus testimony filter. Because apparently simple things are illegal now.</p>
+
+      <div class="controls">
+        <input id="searchInput" class="wide" type="text" placeholder="Search a person or entity" />
+        <select id="groupFilter">
+          <option value="all">All groups</option>
+          <option value="core">Epstein core</option>
+          <option value="finance">Financial access</option>
+          <option value="intel">Intelligence chain</option>
+          <option value="state">State / institutional</option>
+          <option value="operations">Covert infrastructure</option>
+          <option value="testimony">Testimony threads</option>
+          <option value="files">Files / evidence</option>
+        </select>
+        <select id="evidenceFilter">
+          <option value="all">All evidence levels</option>
+          <option value="documented">Documented only</option>
+          <option value="reported">Reported + documented</option>
+          <option value="testimony">Show all including testimony</option>
+        </select>
+        <button id="resetBtn" class="wide">Reset filters</button>
+      </div>
+
+      <div id="network"></div>
+
+      <div class="legend">
+        <span class="pill"><span class="dot" style="background: var(--core)"></span>Epstein core</span>
+        <span class="pill"><span class="dot" style="background: var(--finance)"></span>Financial access</span>
+        <span class="pill"><span class="dot" style="background: var(--intel)"></span>Intelligence chain</span>
+        <span class="pill"><span class="dot" style="background: var(--state)"></span>State / institutional</span>
+        <span class="pill"><span class="dot" style="background: var(--ops)"></span>Covert infrastructure</span>
+        <span class="pill"><span class="dot" style="background: var(--testimony)"></span>Testimony thread</span>
+        <span class="pill"><span class="dot" style="background: var(--file)"></span>Files / evidence</span>
+      </div>
+
+      <div class="panel" id="detailPanel">
+        <h3>Click a node</h3>
+        <p class="small subtle">The panel will show the node summary, evidence level, and linked relationships. Clicking a node also jumps to the full dossier on the right.</p>
+        <div class="note">Line styles: solid = documented, dashed = reported, dotted = testimony.</div>
+      </div>
+    </section>
+
+    <section class="right">
+      <h2>Network Index</h2>
+      <p class="subtle">Click a name to jump to its dossier. The map and the write-up use the same IDs, so readers can navigate either way instead of rage-scrolling through a human centipede of paragraphs.</p>
+      <div class="index" id="indexList"></div>
+
+      <div class="panel">
+        <h2 style="margin-top:0;">Method</h2>
+        <p>This dashboard separates information into three tiers: documented, reported, and survivor testimony. Testimony nodes are included as open threads, not settled fact. The point is to preserve distinctions instead of flattening everything into one screaming blob.</p>
+      </div>
+
+      <h2>Dossiers</h2>
+      <div id="dossiers"></div>
+      <div class="footer-space"></div>
+    </section>
+  </div>
+
+  <script>
+    const nodeList = [
+      {
+        id: 'epstein', label: 'Jeffrey Epstein', group: 'core', evidence: 'documented',
+        title: 'Math teacher turned financier with no verifiable client list or source of wealth.',
+        summary: 'Raised in Coney Island, skipped grades, attended NYU but did not graduate. Later acquired immense wealth and elite access without a documented client list or clear paper trail. Federal agents found an Austrian passport with his photo, false name, and Saudi address in 2019. Ten thousand videos were seized. Roughly six million pages exist, with about half released. Died in federal custody on August 10, 2019.',
+        bullets: ['No verified source of wealth', 'Austrian passport with false identity found in safe', 'Ten thousand videos seized and still sealed', 'Six million pages of files, about half released'],
+        slug: 'epstein'
+      },
+      {
+        id: 'donald-barr', label: 'Donald Barr', group: 'state', evidence: 'documented',
+        title: 'OSS veteran and Dalton headmaster who hired Epstein in 1973.',
+        summary: 'Veteran of the OSS, the wartime intelligence service that became the CIA. As headmaster of the Dalton School, he hired Epstein to teach mathematics and physics despite no degree or teaching credentials. In the same year, he published Space Relations, a sci-fi novel about aristocrats keeping humans as sex slaves. Father of William Barr.',
+        bullets: ['OSS veteran', 'Hired Epstein at Dalton with no credentials', 'Published Space Relations in 1973', 'Father of William Barr'],
+        slug: 'donald-barr'
+      },
+      {
+        id: 'william-barr', label: 'William Barr', group: 'state', evidence: 'documented',
+        title: 'Attorney General when Epstein died in federal custody.',
+        summary: 'Served as Attorney General under George H.W. Bush and again under Trump. Oversaw DOJ and the federal prison system when Epstein died at MCC in 2019. The death was ruled a suicide, while cameras outside the cell malfunctioned and guards failed required checks. Also recommended pardons for key Iran-Contra figures during his earlier tenure.',
+        bullets: ['Attorney General during Epstein death in custody', 'Cameras malfunctioned outside cell', 'Guard checks were skipped', 'Recommended Iran-Contra pardons in first tenure'],
+        slug: 'william-barr'
+      },
+      {
+        id: 'alan-greenberg', label: 'Alan Greenberg', group: 'finance', evidence: 'reported',
+        title: 'Bear Stearns CEO tied to Epstein through Dalton.',
+        summary: 'Known as Ace. His daughter attended Dalton while Epstein taught there. Epstein later said this connection helped him move from Dalton to Bear Stearns almost immediately after leaving the school. At Bear Stearns he rose rapidly despite having no degree or formal financial credentials.',
+        bullets: ['Bear Stearns CEO', 'Daughter attended Dalton', 'Epstein said this connection got him the job', 'Opened Wall Street access'],
+        slug: 'alan-greenberg'
+      },
+      {
+        id: 'edgar-bronfman', label: 'Edgar Bronfman Sr.', group: 'finance', evidence: 'reported',
+        title: 'Seagram’s president and early Epstein client at Bear Stearns.',
+        summary: 'President of Seagram’s and one of Epstein’s wealthy early clients. Later co-founded the Mega Group with Leslie Wexner, a private network of approximately twenty wealthy Jewish-American businessmen coordinating pro-Israel political strategy.',
+        bullets: ['Seagram’s president', 'Early Epstein client', 'Co-founded Mega Group with Wexner'],
+        slug: 'edgar-bronfman'
+      },
+      {
+        id: 'ronald-lauder', label: 'Ronald Lauder', group: 'finance', evidence: 'reported',
+        title: 'Estée Lauder heir and Mega Group member.',
+        summary: 'Billionaire heir to the Estée Lauder fortune, former U.S. ambassador to Austria, president of the World Jewish Congress, and member of the Mega Group alongside Wexner and Bronfman.',
+        bullets: ['Estée Lauder heir', 'Former ambassador to Austria', 'World Jewish Congress president', 'Mega Group member'],
+        slug: 'ronald-lauder'
+      },
+      {
+        id: 'david-rockefeller', label: 'David Rockefeller', group: 'state', evidence: 'reported',
+        title: 'Mentored Epstein and sponsored entry into elite institutions.',
+        summary: 'Chairman of Chase Manhattan Bank, founder of the Trilateral Commission, and longtime chairman of the Council on Foreign Relations. Epstein is reported to have been mentored by Rockefeller and sponsored into the Trilateral Commission and CFR despite having no clear credentials or source of wealth. Rockefeller family background is Protestant Baptist, not Jewish.',
+        bullets: ['Founded Trilateral Commission', 'Longtime CFR chairman', 'Reported to have mentored Epstein', 'Sponsored elite institutional access'],
+        slug: 'david-rockefeller'
+      },
+      {
+        id: 'douglas-leese', label: 'Douglas Leese', group: 'intel', evidence: 'reported',
+        title: 'British defense contractor in the recruitment chain.',
+        summary: 'Defense contractor operating in overlap between intelligence and arms circles. Introduced Epstein to Steven Hoffenberg and John Mitchell. Hoffenberg later said Leese recruited Epstein for British intelligence. That claim is from Hoffenberg and not court-verified.',
+        bullets: ['British defense contractor', 'Introduced Epstein to Hoffenberg and Mitchell', 'Recruitment claim comes from Hoffenberg'],
+        slug: 'douglas-leese'
+      },
+      {
+        id: 'john-mitchell', label: 'John Mitchell', group: 'intel', evidence: 'reported',
+        title: 'Nixon Attorney General later appearing in Epstein’s introduction chain.',
+        summary: 'Former U.S. Attorney General under Nixon. Convicted in Watergate and served prison time. Later operated in the same defense and influence circles tied to Douglas Leese and the Epstein introduction chain.',
+        bullets: ['Nixon AG', 'Convicted in Watergate', 'Part of Epstein introduction network'],
+        slug: 'john-mitchell'
+      },
+      {
+        id: 'steven-hoffenberg', label: 'Steven Hoffenberg', group: 'intel', evidence: 'reported',
+        title: 'Towers Financial founder who introduced Epstein to Robert Maxwell.',
+        summary: 'Founder of Towers Financial, later convicted of a $475 million Ponzi scheme. Epstein worked with him in the early 1980s. Hoffenberg later said Epstein was recruited for British intelligence through Douglas Leese and that he introduced Epstein to Robert Maxwell.',
+        bullets: ['Towers Financial founder', '$475 million Ponzi scheme conviction', 'Worked with Epstein', 'Introduced Epstein to Robert Maxwell'],
+        slug: 'steven-hoffenberg'
+      },
+      {
+        id: 'robert-maxwell', label: 'Robert Maxwell', group: 'intel', evidence: 'reported',
+        title: 'Media mogul linked to MI6, CIA, Mossad, and PROMIS distribution.',
+        summary: 'Born Jan Ludvik Hoch. Built a media empire and later emerged in reporting and investigative records as linked to MI6, the CIA, and Mossad. Associated with distribution of PROMIS software, allegedly modified with a covert backdoor that enabled intelligence access. Died in 1991 after falling from his yacht. Six Israeli intelligence chiefs attended his funeral. Father of Ghislaine Maxwell.',
+        bullets: ['Media mogul and former MP', 'Linked to MI6, CIA, Mossad in reporting', 'Associated with PROMIS distribution', 'Father of Ghislaine Maxwell'],
+        slug: 'robert-maxwell'
+      },
+      {
+        id: 'ghislaine-maxwell', label: 'Ghislaine Maxwell', group: 'core', evidence: 'documented',
+        title: 'Epstein’s partner and convicted trafficker.',
+        summary: 'Moved to New York shortly after Robert Maxwell’s death and became Epstein’s operational partner and social fixer. Victim testimony described her as a primary recruiter and organizer in the trafficking network. Convicted in 2021 and sentenced to 20 years.',
+        bullets: ['Daughter of Robert Maxwell', 'Moved to New York in 1991', 'Victims identified her as recruiter and organizer', 'Convicted in 2021'],
+        slug: 'ghislaine-maxwell'
+      },
+      {
+        id: 'adnan-khashoggi', label: 'Adnan Khashoggi', group: 'operations', evidence: 'reported',
+        title: 'Saudi arms dealer and Iran-Contra middleman who was also an Epstein client.',
+        summary: 'Saudi arms dealer central to Iran-Contra financial brokering. Also associated with sexual blackmail-style environments on his yacht and later sold that yacht to Robert Maxwell. Appears as a bridge between covert operations, Maxwell’s world, and Epstein’s financial orbit.',
+        bullets: ['Iran-Contra middleman', 'Documented Epstein client', 'Sold yacht to Robert Maxwell'],
+        slug: 'adnan-khashoggi'
+      },
+      {
+        id: 'george-hw-bush', label: 'George H.W. Bush', group: 'state', evidence: 'documented',
+        title: 'CIA director and later president linked through the Iran-Contra era.',
+        summary: 'Served as CIA Director and later as Vice President and President during the broader Iran-Contra period. Included here as part of the institutional thread connecting OSS, CIA structures, Iran-Contra logistics, William Barr, and the Epstein-adjacent covert infrastructure.',
+        bullets: ['Former CIA Director', 'Vice President during Iran-Contra era', 'Institutional thread linking intelligence to later actors'],
+        slug: 'george-hw-bush'
+      },
+      {
+        id: 'southern-air-transport', label: 'Southern Air Transport', group: 'operations', evidence: 'documented',
+        title: 'CIA front airline later relocated to service Wexner logistics.',
+        summary: 'Cargo airline documented as a CIA front and involved in Iran-Contra supply flights. Later relocated to Columbus, Ohio to service logistics tied to Leslie Wexner’s retail empire. Reported investigations say Epstein played a role in brokering the relocation while managing Wexner’s finances.',
+        bullets: ['Documented CIA front airline', 'Iran-Contra supply flights', 'Relocated to Columbus for Wexner logistics', 'Reported Epstein brokering role'],
+        slug: 'southern-air-transport'
+      },
+      {
+        id: 'leslie-wexner', label: 'Leslie Wexner', group: 'core', evidence: 'documented',
+        title: 'Billionaire patron who gave Epstein assets and authority.',
+        summary: 'Founder of L Brands, including Victoria’s Secret. Gave Epstein power of attorney, access to properties, use of his private jet, and the Manhattan mansion that became Epstein’s headquarters. Victims testified Epstein used the Victoria’s Secret orbit and claim of working for Wexner as part of recruitment.',
+        bullets: ['Founder of L Brands', 'Gave Epstein power of attorney', 'Provided Manhattan mansion', 'Victim testimony links his corporate orbit to recruitment'],
+        slug: 'leslie-wexner'
+      },
+      {
+        id: 'william-burns', label: 'William Burns', group: 'state', evidence: 'documented',
+        title: 'Senior diplomat documented visiting Epstein after the 2008 conviction.',
+        summary: 'Career diplomat and later CIA Director. Records show he visited Epstein’s Manhattan townhouse after Epstein’s 2008 conviction while serving in senior State Department roles. The purpose of the visit has never been publicly explained.',
+        bullets: ['Senior State Department official', 'Visited Epstein townhouse after 2008 conviction', 'Later became CIA Director'],
+        slug: 'william-burns'
+      },
+      {
+        id: 'steve-bannon', label: 'Steve Bannon', group: 'files', evidence: 'documented',
+        title: 'Filmed fifteen hours of Epstein interviews, most still unreleased.',
+        summary: 'Former Breitbart executive and White House strategist. Conducted roughly fifteen hours of filmed sessions with Epstein in 2019. About two hours were released in 2026. The remaining footage has not been released. Later publicly attacked Epstein while still not releasing the remaining material.',
+        bullets: ['Filmed about 15 hours with Epstein', 'About 2 hours released', 'Remainder unreleased'],
+        slug: 'steve-bannon'
+      },
+      {
+        id: 'anneke-lucas', label: 'Anneke Lucas', group: 'testimony', evidence: 'testimony',
+        title: 'Named survivor whose testimony opens the Rockefeller thread.',
+        summary: 'Belgian survivor and author who has given repeated on-record public testimony stating she was trafficked into an elite network as a child. She has publicly named David Rockefeller and others. Her account is included here as survivor testimony and not court-verified fact.',
+        bullets: ['Public named witness', 'Claims trafficking into elite network', 'Named David Rockefeller and others', 'Testimony only, not court-verified'],
+        slug: 'anneke-lucas'
+      },
+      {
+        id: 'kurt-kiesinger', label: 'Kurt Georg Kiesinger', group: 'testimony', evidence: 'testimony',
+        title: 'Former German chancellor named in Lucas testimony.',
+        summary: 'Former Chancellor of West Germany. Named by Anneke Lucas as having abused her as a child. Included only as testimony-based thread.',
+        bullets: ['Named in Lucas testimony', 'Not court-verified'],
+        slug: 'kurt-kiesinger'
+      },
+      {
+        id: 'pierre-trudeau', label: 'Pierre Trudeau', group: 'testimony', evidence: 'testimony',
+        title: 'Former Canadian prime minister named in Lucas testimony.',
+        summary: 'Named by Anneke Lucas as present at events she attended as a child. Included only as testimony-based thread.',
+        bullets: ['Named in Lucas testimony', 'Not court-verified'],
+        slug: 'pierre-trudeau'
+      },
+      {
+        id: 'paul-vanden-boeynants', label: 'Paul Vanden Boeynants', group: 'testimony', evidence: 'testimony',
+        title: 'Belgian official named in Lucas testimony.',
+        summary: 'Former Belgian Minister of National Defense. Named by Anneke Lucas as present at events. Also referenced in Belgian parliamentary discussions around the Dutroux context. Included here as an open thread, not established fact.',
+        bullets: ['Named in Lucas testimony', 'Referenced in Belgian parliamentary context', 'Not court-verified in this network claim'],
+        slug: 'paul-vanden-boeynants'
+      },
+      {
+        id: 'michel-nihoul', label: 'Michel Nihoul', group: 'testimony', evidence: 'testimony',
+        title: 'Dutroux associate named by Lucas in the broader network.',
+        summary: 'Associate of Marc Dutroux who was acquitted in that case. Named by Anneke Lucas as a participant in the wider network she describes. Included only as testimony-based thread.',
+        bullets: ['Associate of Marc Dutroux', 'Named in Lucas testimony', 'Not court-verified for this broader claim'],
+        slug: 'michel-nihoul'
+      },
+      {
+        id: 'the-files', label: 'The Files', group: 'files', evidence: 'documented',
+        title: 'Sealed videos and millions of pages at the center of the unanswered questions.',
+        summary: 'Investigators seized ten thousand videos and compiled roughly six million pages of material. About half the pages have been released. Names of alleged abusers were redacted while many victims were identified. Ten co-conspirators were referenced. One was charged.',
+        bullets: ['Ten thousand videos seized', 'About six million pages total', 'Half released', 'Ten co-conspirators identified, one charged'],
+        slug: 'the-files'
+      },
+      {
+        id: 'promis', label: 'PROMIS Software', group: 'operations', evidence: 'documented',
+        title: 'Stolen DOJ software central to the Maxwell surveillance thread.',
+        summary: 'Case management software developed by INSLAW and later at the center of allegations and findings that it was taken through trickery and fraud, modified with a covert backdoor, and distributed internationally through intelligence-linked channels including Robert Maxwell.',
+        bullets: ['INSLAW case management software', 'DOJ fraud findings in House inquiry', 'Alleged intelligence backdoor', 'Tied to Robert Maxwell distribution thread'],
+        slug: 'promis'
+      },
+      {
+        id: 'mega-group', label: 'Mega Group', group: 'finance', evidence: 'reported',
+        title: 'Private network of wealthy businessmen coordinating pro-Israel political strategy.',
+        summary: 'Described in reporting as a private network of approximately twenty wealthy Jewish-American businessmen including Leslie Wexner, Edgar Bronfman Sr., and Ronald Lauder who met periodically to coordinate political and philanthropic strategy related to Israel.',
+        bullets: ['Private elite donor network', 'Includes Wexner, Bronfman, Lauder', 'Appears in reporting, not as formal public institution'],
+        slug: 'mega-group'
+      }
+    ];
+
+    const edgeList = [
+      { from: 'epstein', to: 'donald-barr', label: 'hired at Dalton', evidence: 'documented' },
+      { from: 'donald-barr', to: 'william-barr', label: 'father and son', evidence: 'documented' },
+      { from: 'epstein', to: 'william-barr', label: 'died in custody under DOJ', evidence: 'documented' },
+      { from: 'epstein', to: 'alan-greenberg', label: 'Bear Stearns entry via Dalton link', evidence: 'reported' },
+      { from: 'epstein', to: 'edgar-bronfman', label: 'Bear Stearns client', evidence: 'reported' },
+      { from: 'edgar-bronfman', to: 'mega-group', label: 'co-founder', evidence: 'reported' },
+      { from: 'leslie-wexner', to: 'mega-group', label: 'co-founder', evidence: 'reported' },
+      { from: 'ronald-lauder', to: 'mega-group', label: 'member', evidence: 'reported' },
+      { from: 'epstein', to: 'david-rockefeller', label: 'mentored / sponsored', evidence: 'reported' },
+      { from: 'epstein', to: 'douglas-leese', label: 'intro chain', evidence: 'reported' },
+      { from: 'douglas-leese', to: 'steven-hoffenberg', label: 'introduction', evidence: 'reported' },
+      { from: 'douglas-leese', to: 'john-mitchell', label: 'shared intro chain', evidence: 'reported' },
+      { from: 'steven-hoffenberg', to: 'epstein', label: 'worked together', evidence: 'reported' },
+      { from: 'steven-hoffenberg', to: 'robert-maxwell', label: 'introduced Epstein', evidence: 'reported' },
+      { from: 'robert-maxwell', to: 'ghislaine-maxwell', label: 'father and daughter', evidence: 'documented' },
+      { from: 'ghislaine-maxwell', to: 'epstein', label: 'operational partner', evidence: 'documented' },
+      { from: 'robert-maxwell', to: 'promis', label: 'distribution role', evidence: 'reported' },
+      { from: 'adnan-khashoggi', to: 'epstein', label: 'client', evidence: 'reported' },
+      { from: 'adnan-khashoggi', to: 'robert-maxwell', label: 'sold yacht', evidence: 'reported' },
+      { from: 'adnan-khashoggi', to: 'southern-air-transport', label: 'Iran-Contra context', evidence: 'documented' },
+      { from: 'george-hw-bush', to: 'southern-air-transport', label: 'CIA / Iran-Contra era overlap', evidence: 'documented' },
+      { from: 'southern-air-transport', to: 'leslie-wexner', label: 'relocated to service logistics', evidence: 'documented' },
+      { from: 'epstein', to: 'leslie-wexner', label: 'power of attorney / mansion', evidence: 'documented' },
+      { from: 'epstein', to: 'william-burns', label: 'Burns visited townhouse', evidence: 'documented' },
+      { from: 'epstein', to: 'steve-bannon', label: '2019 filmed interviews', evidence: 'documented' },
+      { from: 'steve-bannon', to: 'the-files', label: 'unreleased footage overlap', evidence: 'documented' },
+      { from: 'epstein', to: 'the-files', label: 'central case archive', evidence: 'documented' },
+      { from: 'anneke-lucas', to: 'david-rockefeller', label: 'abuse allegation', evidence: 'testimony' },
+      { from: 'anneke-lucas', to: 'kurt-kiesinger', label: 'named in testimony', evidence: 'testimony' },
+      { from: 'anneke-lucas', to: 'pierre-trudeau', label: 'named in testimony', evidence: 'testimony' },
+      { from: 'anneke-lucas', to: 'paul-vanden-boeynants', label: 'named in testimony', evidence: 'testimony' },
+      { from: 'anneke-lucas', to: 'michel-nihoul', label: 'named in testimony', evidence: 'testimony' },
+      { from: 'epstein', to: 'the-files', label: 'sealed videos and pages', evidence: 'documented' },
+      { from: 'promis', to: 'southern-air-transport', label: 'covert infrastructure layer', evidence: 'reported' }
+    ];
+
+    const groupColors = {
+      core: '#ef4444',
+      finance: '#3b82f6',
+      intel: '#8b5cf6',
+      state: '#10b981',
+      operations: '#f59e0b',
+      testimony: '#9ca3af',
+      files: '#ec4899'
+    };
+
+    const evidenceRank = { documented: 1, reported: 2, testimony: 3 };
+
+    function edgeStyle(edge) {
+      const styles = {
+        documented: { color: '#cbd5e1', dashes: false, width: 2.2 },
+        reported: { color: '#93c5fd', dashes: [8, 6], width: 2 },
+        testimony: { color: '#d1d5db', dashes: [2, 8], width: 1.8 }
+      };
+      return { ...edge, ...styles[edge.evidence] };
+    }
+
+    function nodeStyle(node) {
+      const color = groupColors[node.group] || '#94a3b8';
+      return {
+        ...node,
+        color: {
+          background: color,
+          border: '#f8fafc',
+          highlight: { background: color, border: '#facc15' },
+          hover: { background: color, border: '#f8fafc' }
+        },
+        borderWidth: 1.5,
+        font: { color: '#f8fafc', size: 16, face: 'Inter' },
+        shape: 'dot',
+        size: node.group === 'core' ? 24 : node.group === 'testimony' ? 16 : 19
+      };
+    }
+
+    const allNodes = nodeList.map(nodeStyle);
+    const allEdges = edgeList.map(edgeStyle);
+
+    const nodes = new vis.DataSet(allNodes);
+    const edges = new vis.DataSet(allEdges);
+
+    const container = document.getElementById('network');
+    const data = { nodes, edges };
+
+    const options = {
+      autoResize: true,
+      interaction: {
+        hover: true,
+        tooltipDelay: 150,
+        navigationButtons: true,
+        keyboard: true
+      },
+      physics: {
+        stabilization: { iterations: 250 },
+        barnesHut: {
+          gravitationalConstant: -4500,
+          springLength: 170,
+          springConstant: 0.04,
+          damping: 0.25
+        }
+      },
+      layout: {
+        improvedLayout: true,
+        clusterThreshold: 150
+      },
+      edges: {
+        smooth: { type: 'dynamic' },
+        arrows: { to: { enabled: false } },
+        font: {
+          color: '#cbd5e1',
+          size: 11,
+          background: 'rgba(15,23,42,0.65)',
+          strokeWidth: 0
+        }
+      },
+      groups: Object.fromEntries(Object.entries(groupColors).map(([key, value]) => [key, { color: value }]))
+    };
+
+    const network = new vis.Network(container, data, options);
+
+    function buildIndex() {
+      const index = document.getElementById('indexList');
+      index.innerHTML = nodeList
+        .map(node => `<a href="#${node.slug}">${node.label}</a>`)
+        .join('');
+    }
+
+    function buildDossiers() {
+      const dossiers = document.getElementById('dossiers');
+      dossiers.innerHTML = nodeList.map(node => `
+        <article class="section-card" id="${node.slug}">
+          <h3>${node.label}</h3>
+          <div class="meta">
+            <span class="tag">Group: ${prettyGroup(node.group)}</span>
+            <span class="tag">Evidence: ${node.evidence}</span>
+          </div>
+          <p><strong>${node.title}</strong></p>
+          <p>${node.summary}</p>
+          <ul class="compact">
+            ${node.bullets.map(b => `<li>${b}</li>`).join('')}
+          </ul>
+        </article>
+      `).join('');
+    }
+
+    function prettyGroup(group) {
+      return {
+        core: 'Epstein core',
+        finance: 'Financial access',
+        intel: 'Intelligence chain',
+        state: 'State / institutional',
+        operations: 'Covert infrastructure',
+        testimony: 'Testimony thread',
+        files: 'Files / evidence'
+      }[group] || group;
+    }
+
+    function relatedLinks(nodeId) {
+      return allEdges.filter(e => e.from === nodeId || e.to === nodeId).map(e => {
+        const otherId = e.from === nodeId ? e.to : e.from;
+        const other = nodeList.find(n => n.id === otherId);
+        return { other, label: e.label, evidence: e.evidence };
+      });
+    }
+
+    function updateDetailPanel(nodeId) {
+      const node = nodeList.find(n => n.id === nodeId);
+      const panel = document.getElementById('detailPanel');
+      if (!node) return;
+      const links = relatedLinks(nodeId);
+      panel.innerHTML = `
+        <h3>${node.label}</h3>
+        <div class="meta">
+          <span class="tag">${prettyGroup(node.group)}</span>
+          <span class="tag">${node.evidence}</span>
+        </div>
+        <p><strong>${node.title}</strong></p>
+        <p class="small">${node.summary}</p>
+        <h3 style="margin-top:14px;">Linked relationships</h3>
+        <ul class="compact small">
+          ${links.map(link => `<li><a href="#${link.other.slug}">${link.other.label}</a> • ${link.label} • ${link.evidence}</li>`).join('') || '<li>No linked relationships displayed.</li>'}
+        </ul>
+      `;
+    }
+
+    function filterData() {
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+      const group = document.getElementById('groupFilter').value;
+      const evidence = document.getElementById('evidenceFilter').value;
+
+      const maxRank = evidence === 'documented' ? 1 : evidence === 'reported' ? 2 : 3;
+
+      const visibleNodes = allNodes.filter(node => {
+        const textMatch = !search || node.label.toLowerCase().includes(search) || node.summary.toLowerCase().includes(search);
+        const groupMatch = group === 'all' || node.group === group;
+        const evidenceMatch = evidenceRank[node.evidence] <= maxRank;
+        return textMatch && groupMatch && evidenceMatch;
+      });
+
+      const visibleIds = new Set(visibleNodes.map(n => n.id));
+      const visibleEdges = allEdges.filter(edge => visibleIds.has(edge.from) && visibleIds.has(edge.to) && evidenceRank[edge.evidence] <= maxRank);
+
+      nodes.clear();
+      edges.clear();
+      nodes.add(visibleNodes);
+      edges.add(visibleEdges);
+      network.fit({ animation: true });
+    }
+
+    document.getElementById('searchInput').addEventListener('input', filterData);
+    document.getElementById('groupFilter').addEventListener('change', filterData);
+    document.getElementById('evidenceFilter').addEventListener('change', filterData);
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('groupFilter').value = 'all';
+      document.getElementById('evidenceFilter').value = 'all';
+      filterData();
+    });
+
+    network.on('click', function(params) {
+      if (params.nodes.length) {
+        const id = params.nodes[0];
+        updateDetailPanel(id);
+        const node = nodeList.find(n => n.id === id);
+        if (node) {
+          window.location.hash = node.slug;
+          document.getElementById(node.slug)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    });
+
+    buildIndex();
+    buildDossiers();
+    updateDetailPanel('epstein');
+
+    setTimeout(() => network.fit({ animation: true }), 300);
+  </script>
+</body>
+</html>
