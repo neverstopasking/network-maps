@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Epstein Origins — Network Map</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #060b12; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+  #header { padding: 16px 24px 0; flex-shrink: 0; }
+  #header .eyebrow { font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.25); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 3px; }
+  #header h1 { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.02em; line-height: 1.2; }
+  #header p { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 4px; line-height: 1.5; }
+
+  #controls { display: flex; gap: 5px; flex-wrap: wrap; padding: 10px 24px 0; flex-shrink: 0; align-items: center; }
+  .btn { background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 4px 12px; font-size: 10px; cursor: pointer; color: rgba(255,255,255,0.4); transition: all .2s; font-family: inherit; letter-spacing: 0.04em; white-space: nowrap; }
+  .btn:hover { background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.7); }
+  .btn.active { background: rgba(255,255,255,0.13); color: #fff; border-color: rgba(255,255,255,0.3); }
+
+  #net { flex: 1; position: relative; min-height: 0; }
+  #net svg { width: 100%; height: 100%; display: block; }
+
+  #legend { position: absolute; top: 10px; left: 16px; pointer-events: none; background: rgba(6,11,18,0.7); padding: 8px 12px; border-radius: 8px; border: 0.5px solid rgba(255,255,255,0.06); }
+  #legend .lr { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; font-size: 10px; color: rgba(255,255,255,0.45); }
+  #legend .lr:last-child { margin-bottom: 0; }
+  #legend .ld { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  #info-panel {
+    flex-shrink: 0;
+    background: #0b1520;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 16px 24px 18px;
+    min-height: 130px;
+    max-height: 210px;
+    overflow-y: auto;
+  }
+  #info-panel::-webkit-scrollbar { width: 3px; }
+  #info-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+
+  #hint { color: rgba(255,255,255,0.22); font-size: 13px; padding-top: 4px; }
+  .pname { font-size: 17px; font-weight: 700; margin-bottom: 7px; letter-spacing: -0.01em; }
+  .ptags { margin-bottom: 9px; display: flex; flex-wrap: wrap; gap: 5px; }
+  .ptag { font-size: 10.5px; padding: 3px 11px; border-radius: 20px; font-weight: 500; letter-spacing: 0.03em; white-space: nowrap; }
+  .plyric { font-style: italic; font-size: 12px; line-height: 1.7; border-left: 2px solid rgba(255,255,255,0.15); padding-left: 11px; margin-bottom: 9px; color: rgba(255,255,255,0.42); }
+  .pdesc { font-size: 13px; line-height: 1.75; color: rgba(255,255,255,0.75); }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="eyebrow">Network Map · Song 01</div>
+  <h1>How did a math teacher from Brooklyn end up here?</h1>
+  <p>Every node is documented. Every connection is sourced. Click any node to explore. Drag to reposition. Scroll to zoom.</p>
+</div>
+
+<div id="controls">
+  <button class="btn active" onclick="filterGroup('all',this)">All</button>
+  <button class="btn" onclick="filterGroup('intelligence',this)">● Intelligence</button>
+  <button class="btn" onclick="filterGroup('finance',this)">● Finance</button>
+  <button class="btn" onclick="filterGroup('political',this)">● Political</button>
+  <button class="btn" onclick="filterGroup('institution',this)">● Institutions</button>
+  <button class="btn" onclick="filterGroup('media',this)">● Maxwell network</button>
+</div>
+
+<div id="net"><div id="legend"></div></div>
+<div id="info-panel"><div id="hint">Click any node to explore connections and source material</div></div>
+
+<script>
+const C = {
+  central:"#ff5252", intelligence:"#42a5f5", finance:"#ffb300",
+  political:"#ab47bc", institution:"#66bb6a", media:"#ff7043"
+};
+const GL = {
+  central:"Central figure", intelligence:"Intelligence", finance:"Finance",
+  political:"Political", institution:"Institution", media:"Maxwell network"
+};
+
+const nodes = [
+  {id:"Jeffrey Epstein",group:"central",size:32,lyric:"'A kid from Brooklyn...skipped two grades, graduated at sixteen, got into an elite math program at NYU, dropped out, and at twenty-one was hired to teach physics at the most exclusive private school in Manhattan without a degree'",info:"Grew up in Coney Island, Brooklyn. Father was a groundskeeper. Skipped two grades, enrolled at NYU, dropped out. Never finished a degree. Somehow ended up teaching at Manhattan's most elite prep school with no credentials, then on Wall Street the next day after being fired, then in the personal orbit of David Rockefeller, the Trilateral Commission, and the intelligence services of at least three countries. His only publicly known client was Leslie Wexner, who gave him a $77M mansion and full power of attorney. An Austrian passport found in his safe after his 2019 arrest had his photo, a false name, and a Saudi address -- state-level intelligence tradecraft. Ten thousand videos seized, still sealed. Died in federal custody August 10, 2019. Both cell cameras malfunctioned. Guards skipped required checks. His brother's forensic pathologist concluded homicide.",orgs:["Dalton School","Bear Stearns","Trilateral Commission","Council on Foreign Relations","Rockefeller University"]},
+  {id:"Donald Barr",group:"intelligence",size:17,lyric:"'The headmaster was Donald Barr, O.S.S veteran, precursor to the CIA, who wrote a novel about elites keeping humans as sex slaves'",info:"Veteran of the OSS -- the wartime intelligence service that became the CIA in 1947. After the war became an educator, eventually headmaster of the Dalton School. In 1973 hired Jeffrey Epstein to teach math and physics despite Epstein having no college degree and no teaching credentials. That same year published a science fiction novel called Space Relations -- plot: aristocrats on a distant planet who keep human beings as sex slaves. Father of William Barr, who would serve as Attorney General when Epstein died in federal custody 45 years later. The same family bookended Epstein's entire documented career.",orgs:["O.S.S. / CIA precursor","Dalton School"]},
+  {id:"William Barr",group:"political",size:18,lyric:"'...father of William Barr, the attorney general who would oversee the jail where Epstein died forty-five years later'",info:"Attorney General under George H.W. Bush (1991-1993) and again under Trump (2019-2020). During his first tenure recommended pardons for key Iran-Contra figures -- the same covert network that connects to Epstein through Southern Air Transport and Adnan Khashoggi. During his second tenure oversaw the DOJ and federal prison system when Epstein died at the MCC on August 10, 2019. Ruled the death a suicide. Both cameras outside Epstein's cell malfunctioned. Guards had skipped required welfare checks. An independent forensic pathologist hired by Epstein's brother concluded the physical evidence was consistent with homicide. Son of OSS veteran Donald Barr, who hired Epstein in 1973.",orgs:["U.S. Dept. of Justice","MCC New York"]},
+  {id:"CIA / O.S.S.",group:"intelligence",size:22,lyric:"'...same CIA whose precursor employed Donald Barr, same era Bush was running the agency then the country'",info:"The OSS -- wartime intelligence predecessor to the CIA -- employed Donald Barr, the headmaster who hired Epstein with no credentials. The CIA owned Southern Air Transport outright from 1960-1973; that airline later relocated to service Leslie Wexner's logistics empire. CIA Director William Burns was documented visiting Epstein's townhouse after his 2008 sex offender conviction while serving as Deputy Secretary of State -- a visit never publicly explained. The CIA and Mossad have documented cooperation since both agencies were founded in the late 1940s. This node represents an institutional thread running through every decade of the Epstein story, not a claim that every connection shown was a formal CIA operation.",orgs:["O.S.S.","Southern Air Transport","PROMIS software","William Burns"]},
+  {id:"British Intelligence",group:"intelligence",size:16,lyric:"'...who says Leese recruited Epstein for British intelligence'",info:"Steven Hoffenberg has stated on the record in multiple interviews that British defense contractor Douglas Leese specifically recruited Epstein for British intelligence (MI6) in the early 1980s. Robert Maxwell was simultaneously a documented MI6, CIA, and Mossad asset -- suggesting British intelligence operated in close coordination with Israeli and American services throughout this network. The British thread is consistently underreported in mainstream Epstein coverage. John Mitchell -- Nixon's convicted Attorney General -- was part of the same introduction chain, suggesting these connections ran through post-Watergate intelligence-adjacent operatives.",orgs:["MI6","Douglas Leese","Robert Maxwell"]},
+  {id:"Mossad / Israeli Intel",group:"intelligence",size:19,lyric:"'Robert Maxwell...sold stolen surveillance software called PROMIS for the CIA and Mossad...Six heads of Israeli intelligence at his funeral, totally normal for a book publisher'",info:"Six heads of Israeli intelligence attended Robert Maxwell's funeral in 1991 -- an extraordinary display for a supposed book publisher. Maxwell sold PROMIS spyware with intelligence backdoors for Mossad. Rafi Eitan -- head of Lekem, Israel's Bureau of Scientific Intelligence -- orchestrated the PROMIS theft. Ehud Barak, former Israeli PM and Director of Aman (military intelligence), visited Epstein's properties 36+ documented times after his 2008 conviction. Jane Doe 200 testified in court that Epstein told her he was a Mossad agent. Former NSA counterintelligence officer John Schindler stated the Epstein operation appeared to be an Israeli intelligence blackmail operation.",orgs:["Robert Maxwell","Ghislaine Maxwell","PROMIS","Unit 8200"]},
+  {id:"Southern Air Transport",group:"intelligence",size:14,lyric:"'A CIA front airline called Southern Air Transport would later relocate its headquarters to service the brands of Les Wexner'",info:"Cargo airline founded in 1947 -- the same year the OSS became the CIA. Owned outright by the CIA from 1960-1973, part of a covert aviation network alongside Air America. After its CIA ownership leaked it was sold but continued operating for the agency. Flew weapons to Iran via Israel and supply missions to Nicaraguan Contras during Iran-Contra -- the plane shot down over Nicaragua in 1986 that exposed the scandal was linked to SAT through recovered logbooks. After Iran-Contra, relocated its entire headquarters from Miami to Columbus, Ohio specifically to service Leslie Wexner's L Brands retail logistics including Victoria's Secret. Investigators identified Epstein as having a role in brokering this relocation while managing Wexner's finances. Declared bankruptcy October 1998 -- exactly one week after the CIA Inspector General released its official Iran-Contra findings.",orgs:["CIA","L Brands / Wexner","Iran-Contra"]},
+  {id:"PROMIS Software",group:"intelligence",size:14,lyric:"'...sold stolen surveillance software called PROMIS for the CIA and Mossad'",info:"Prosecutor's Management Information System -- developed by Inslaw Inc. for the DOJ under a $10M government contract. A federal bankruptcy judge ruled in 1987 the DOJ stole it through 'trickery, fraud and deceit.' Israeli spymaster Rafi Eitan arranged to have it covertly modified with an intelligence backdoor. Robert Maxwell then distributed the backdoored version worldwide -- to foreign governments, banks, intelligence agencies, and law firms. Every buyer's systems were then accessible in real-time by CIA and Mossad. Journalist Danny Casolaro was investigating PROMIS when he was found dead in a hotel bathtub in 1991, wrists slashed 10-12 times. Ruled suicide. His briefcase of notes was missing. Former AG Elliot Richardson called the suicide ruling highly implausible. PROMIS is the documented precursor to modern mass surveillance.",orgs:["Robert Maxwell","CIA","Mossad","DOJ"]},
+  {id:"Austrian Passport",group:"intelligence",size:12,lyric:"'Epstein had an Austrian passport with his photo but a false name and a Saudi address — that's not something you pick up at the post office, that's intelligence tradecraft'",info:"Found in Epstein's Manhattan safe after his 2019 arrest by federal agents. Austrian passport issued in the 1980s -- Epstein's photograph, a false name, a Saudi Arabian address. A cover document of that type requires state-level intelligence infrastructure to produce. It is not available to private citizens. Introduced into evidence in federal court. This single item is one of the clearest documented indicators that Epstein operated within an intelligence apparatus rather than simply as a financier.",orgs:["Jeffrey Epstein"]},
+  {id:"Bear Stearns",group:"finance",size:17,lyric:"'Fired from teaching for poor performance, hired on Wall Street the next day. At Bear Stearns he rose from junior floor assistant to advising the bank's wealthiest clients'",info:"One of Wall Street's most powerful investment banks. Epstein's launchpad -- hired the day after he was fired from teaching through the Greenberg connection, with no college degree, no financial credentials, and no verifiable background. Rose from floor assistant to managing accounts for the bank's wealthiest clients. Was eventually fired circa 1981 for regulatory violations. The Bear Stearns years are when Epstein first built relationships with the wealthy clients -- including Edgar Bronfman Sr. -- who would become his network. Bear Stearns itself collapsed in 2008 and was acquired by JPMorgan Chase.",orgs:["Alan Greenberg","Edgar Bronfman"]},
+  {id:"Alan Greenberg",group:"finance",size:15,lyric:"'One of those students at the Dalton school was the daughter of Bear Stearns CEO Alan Greenberg. Epstein told people that relationship got him his Wall Street job'",info:"Known as 'Ace.' CEO of Bear Stearns for decades. His daughter was a student in Epstein's math class at the Dalton School. Epstein told people this connection was how he went from fired schoolteacher to one of Wall Street's most powerful investment banks overnight -- with no degree, no credentials, no background. That one prep school connection launched an otherwise inexplicable career. Greenberg's daughter being in Epstein's class was either a remarkable coincidence or is itself a detail worth examining given that Donald Barr -- an OSS veteran -- was the headmaster who hired Epstein without credentials in the first place.",orgs:["Bear Stearns","Dalton School"]},
+  {id:"Leslie Wexner",group:"finance",size:23,lyric:"'...the man who would give Epstein everything, but that's part two'",info:"Founder of L Brands -- Victoria's Secret, Bath & Body Works, Abercrombie & Fitch. For decades the wealthiest person in Ohio. Met Epstein in the mid-1980s and handed him full power of attorney over his entire estate, the $77M Manhattan mansion that became Epstein's base of operations, use of his private jet, and access to his corporate infrastructure. Victims testified that Epstein used Victoria's Secret as a recruitment pipeline -- telling young women 'I work for the owner' as the opening line. The CIA's front airline Southern Air Transport relocated to Wexner's city to service his company. Co-founded the Mega Group with Edgar Bronfman. Later claimed Epstein stole $46 million from him and never called police. Deposed in 2026. Never charged.",orgs:["L Brands","Victoria's Secret","Mega Group","Southern Air Transport"]},
+  {id:"Edgar Bronfman",group:"finance",size:15,lyric:"'...including Edgar Bronfman, president of Seagram's, who would later co-found something called the Mega Group'",info:"President of Seagram's, one of the world's largest liquor conglomerates. One of Epstein's early clients at Bear Stearns. Co-founded the Mega Group with Leslie Wexner -- the secret network of approximately twenty wealthy Jewish-American businessmen who met twice yearly to coordinate pro-Israel political strategy. His son Edgar Jr. became CEO of Warner Music. His daughters Clare and Sara Bronfman later bankrolled the NXIVM sex cult -- a separate but structurally adjacent thread involving a network that recruited and controlled women through blackmail material.",orgs:["Seagram's","Mega Group","Bear Stearns"]},
+  {id:"Mega Group",group:"finance",size:17,lyric:"'...the Mega Group, along with Leslie Wexner and Ronald Lauder, a secret network of billionaire donors coordinating pro-Israel strategy'",info:"Secret network of approximately twenty of America's wealthiest Jewish-American businessmen, co-founded by Leslie Wexner and Edgar Bronfman Sr. in the early 1990s. Met twice yearly in private -- sometimes at Ronald Lauder's apartment. Coordinated massive pro-Israel political donations and strategy. Members included Wexner, Bronfman, Lauder, Michael Steinhardt (whose father was Meyer Lansky's jewel fence), Charles Bronfman, and others. The group operated entirely outside public scrutiny. Its existence was first reported by the Forward in 1998. The organizing principle is explicitly pro-Israel political coordination -- the network that Epstein was embedded in and managing money for.",orgs:["Leslie Wexner","Edgar Bronfman","Ronald Lauder","Israeli government"]},
+  {id:"Ronald Lauder",group:"finance",size:14,lyric:"'...Ronald Lauder, a secret network of billionaire donors coordinating pro-Israel strategy'",info:"Estee Lauder heir and billionaire. U.S. Ambassador to Austria under Reagan 1986-1987. President of the World Jewish Congress. Member of the Mega Group alongside Wexner and Bronfman -- his apartment was reportedly one of the venues where the group met. Has documented connections to Israeli intelligence through diplomatic and political activities. Close relationship with Netanyahu spanning decades. Part of the same financial orbit that Epstein was embedded in.",orgs:["Mega Group","Estée Lauder","Israeli government"]},
+  {id:"Steven Hoffenberg",group:"finance",size:15,lyric:"'Hoffenberg introduced him to Robert Maxwell'",info:"Founder of Towers Financial, a debt collection company. Convicted in 1995 of running a $475 million Ponzi scheme -- one of the largest in U.S. history before Madoff. Epstein worked as a consultant for Hoffenberg in the early 1980s during the period the fraud was being built, though Epstein was never charged. Hoffenberg has stated in multiple on-record interviews that Douglas Leese used their connection to recruit Epstein for British intelligence. Also introduced Epstein to Robert Maxwell -- the connection that pulled Epstein into the world of Mossad, CIA, and the PROMIS surveillance network. Hoffenberg spent his post-prison years trying to tell this story publicly. He died in 2022.",orgs:["Towers Financial","Robert Maxwell","Douglas Leese"]},
+  {id:"Adnan Khashoggi",group:"finance",size:15,lyric:"'One of his clients was Adnan Khashoggi, the middleman transferring American weapons from Israel to Iran, Iran-Contra'",info:"Saudi arms dealer and one of the wealthiest men in the world during the 1980s. Served as the central financial middleman of Iran-Contra -- brokering the transfer of American weapons from Israel to Iran and routing profits to fund the Contras in Nicaragua, all in violation of U.S. law. Ran his own sexual blackmail operations using young women on his yacht -- a documented practice that predates and mirrors what Epstein would build. Sold his yacht to Robert Maxwell. Was an Epstein client. Connects three major threads simultaneously: CIA covert operations, the Maxwell intelligence world, and the Epstein financial orbit. His nephew Jamal Khashoggi -- the journalist -- was murdered inside the Saudi consulate in Istanbul in 2018 on the orders of Crown Prince MBS.",orgs:["Iran-Contra","CIA","Saudi royal family","Israeli arms network"]},
+  {id:"John Mitchell",group:"political",size:14,lyric:"'Nixon's former attorney general John Mitchell introduced him to Steven Hoffenberg'",info:"Nixon's Attorney General 1969-1972. Convicted on charges of conspiracy, obstruction of justice, and perjury in the Watergate scandal. Served 19 months in federal prison. After his release operated in the orbit of defense contractors and intelligence-adjacent figures -- the world where Douglas Leese operated. Part of the introduction chain that connected Epstein to British intelligence through Leese and Hoffenberg. The fact that a convicted former Attorney General was part of Epstein's entry into the intelligence world is one of the details that tends to get glossed over.",orgs:["Nixon White House","Douglas Leese","Steven Hoffenberg"]},
+  {id:"George H.W. Bush",group:"political",size:14,lyric:"'...same era Bush was running the agency then the country'",info:"CIA Director 1976-1977. Vice President 1981-1989 -- the period during which Iran-Contra was planned and executed. His national security advisor Donald Gregg was directly connected to the Iran-Contra supply flights. Later 41st President. William Barr -- son of the man who hired Epstein -- served as his Attorney General and recommended pardons for key Iran-Contra figures. The CIA-owned Southern Air Transport flew Iran-Contra missions during his vice presidency and later relocated to service Leslie Wexner. The same institutional thread runs from OSS to CIA to Iran-Contra to Wexner to Epstein.",orgs:["CIA","Iran-Contra","Republican establishment"]},
+  {id:"Iran-Contra",group:"political",size:14,lyric:"'Iran-Contra, same scandal involving the CIA'",info:"The covert operation revealed in 1986 in which Reagan administration officials secretly sold weapons to Iran -- violating an arms embargo -- and used profits to illegally fund the Contras in Nicaragua. Adnan Khashoggi was the central financial middleman. Southern Air Transport flew the planes. Oliver North coordinated from the White House. George H.W. Bush was VP and aware. When a SAT plane was shot down over Nicaragua, the scandal unraveled. William Barr as AG under Bush recommended pardons for key Iran-Contra figures. The network was never dismantled -- the same people, companies, and airline infrastructure appear directly in Epstein's orbit.",orgs:["CIA","Adnan Khashoggi","Southern Air Transport","George H.W. Bush"]},
+  {id:"Trilateral Commission",group:"institution",size:15,lyric:"'He joined the Rockefeller University board, the Trilateral Commission, the Council on Foreign Relations'",info:"Elite policy organization founded by David Rockefeller in 1973 specifically to foster cooperation between the power structures of North America, Western Europe, and Japan. Members have included virtually every major U.S. foreign policy figure for five decades -- Secretaries of State, National Security Advisors, CIA directors, central bankers. Epstein was inducted as a member despite having no college degree, no verifiable client list, and no publicly documented source of wealth. His membership was sponsored by Rockefeller personally. His presence here -- alongside genuinely powerful figures -- is one of the clearest signals that his rise was not organic.",orgs:["David Rockefeller","Council on Foreign Relations"]},
+  {id:"Council on Foreign Relations",group:"institution",size:15,lyric:"'...the Council on Foreign Relations, David Rockefeller personally mentored him'",info:"The premier U.S. foreign policy establishment. Founded 1921. Members have included virtually every Secretary of State and National Security Advisor for decades. Henry Kissinger, Zbigniew Brzezinski, Dick Cheney, Colin Powell -- the permanent foreign policy class. Epstein was a member, sponsored by David Rockefeller, despite having no degree and no verifiable source of wealth. Membership signals full acceptance into the ruling establishment. His presence here is as unexplained as his presence at the Trilateral Commission.",orgs:["David Rockefeller","Trilateral Commission"]},
+  {id:"Rockefeller University",group:"institution",size:14,lyric:"'He joined the Rockefeller University board...'",info:"Elite biomedical research university in New York City, funded by the Rockefeller family. Epstein served on the board despite having no scientific credentials. David Rockefeller personally oversaw his involvement. The board position gave Epstein scientific establishment legitimacy and access to leading researchers -- relevant given his later documented interest in eugenics and funding of geneticists at Harvard including George Church.",orgs:["David Rockefeller","Jeffrey Epstein"]},
+  {id:"Dalton School",group:"institution",size:14,lyric:"'...hired to teach physics at the most exclusive private school in Manhattan without a degree'",info:"Manhattan's most elite private prep school. Epstein was hired to teach physics and math in 1973 by headmaster Donald Barr -- an OSS veteran -- despite having no college degree and no teaching credentials. The student body included children of Wall Street, media, and political elite. One of Epstein's students was the daughter of Bear Stearns CEO Alan Greenberg -- the connection that launched his Wall Street career. The question of why an OSS veteran hired an unqualified dropout to teach at the most elite school in Manhattan has never been answered.",orgs:["Donald Barr","Alan Greenberg"]},
+  {id:"David Rockefeller",group:"institution",size:17,lyric:"'David Rockefeller personally mentored him, a college dropout from Coney Island at the table with the man who built the globalist infrastructure'",info:"Chairman of Chase Manhattan Bank and one of the most powerful private citizens of the 20th century. Founded the Trilateral Commission in 1973 and served as longtime chairman of the Council on Foreign Relations. Personally mentored Jeffrey Epstein -- a college dropout from Brooklyn with no credentials -- and sponsored his entry into both institutions. Nobody has ever explained why. IMPORTANT: The Rockefeller family are documented Northern Baptists of German Protestant descent. They built Riverside Church in Manhattan and funded Baptist missionary work since the 1800s. The family is not Jewish. Belgian survivor Anneke Lucas has stated in on-record public testimony that Rockefeller personally abused her as a child in the early 1970s -- this is survivor testimony, not court-verified, but it directly implicates the same man who mentored Epstein.",orgs:["Trilateral Commission","Council on Foreign Relations","Chase Manhattan","Rockefeller University"]},
+  {id:"Robert Maxwell",group:"media",size:21,lyric:"'Robert Maxwell, media mogul who sold stolen surveillance software called PROMIS for the CIA and Mossad, documented intelligence asset...Six heads of Israeli intelligence at his funeral, totally normal for a book publisher'",info:"Born Jan Ludvik Hoch in Czechoslovakia 1923. Family was murdered in the Holocaust. Escaped, joined the British Army, became an intelligence officer. Built a media empire -- Daily Mirror, Macmillan Publishing, Pergamon Press. Sat in Parliament as a Labour MP. Was simultaneously a documented asset of MI6, the CIA, and Mossad. His primary intelligence role: distributing PROMIS -- stolen DOJ software modified with an intelligence backdoor -- to foreign governments, banks, and intelligence agencies worldwide. Every buyer's systems were then accessible to CIA and Mossad. Found dead in the Atlantic Ocean near his yacht in November 1991. Official verdict: accidental drowning. Widely disputed. Six heads of Israeli intelligence attended his funeral. Buried on the Mount of Olives. The Israeli PM gave the eulogy. Stole 400 million pounds from his employees' pension fund. Father of Ghislaine.",orgs:["Mossad","CIA","MI6","PROMIS","Mirror Group"]},
+  {id:"Ghislaine Maxwell",group:"media",size:20,lyric:"'...who's daughter would move to New York and partner with Epstein the same year he mysteriously fell off his yacht'",info:"Daughter of Robert Maxwell. Oxford educated. Moved to New York within weeks of her father's death in 1991 and immediately entered Epstein's orbit. Became his operational partner, social fixer, and according to unanimous victim testimony, the primary recruiter and architect of the trafficking network. Used her elite social connections -- royalty, politicians, financiers -- to lend Epstein legitimacy and draw victims into his world. Virginia Giuffre testified: 'Epstein was Pinocchio. Ghislaine was Geppetto.' Convicted on five felony counts of sex trafficking December 2021. Sentenced to 20 years. Has not cooperated with prosecutors. Quietly transferred to a minimum-security facility in 2025 with special privileges -- a congressional whistleblower filed a complaint. Whether she was sent to New York by her father's intelligence handlers or simply seized an opportunity after his death has never been established.",orgs:["Robert Maxwell","Jeffrey Epstein","Mossad (alleged)"]},
+  {id:"Douglas Leese",group:"media",size:13,lyric:"'A defense contractor named Douglas Leese...Hoffenberg says Leese recruited Epstein for British intelligence'",info:"British defense contractor operating in the overlap between the private arms industry and intelligence services. Introduced Epstein to Steven Hoffenberg and Nixon's convicted Attorney General John Mitchell -- the chain that ultimately led to Robert Maxwell and the wider intelligence network. Hoffenberg has stated on the record in multiple interviews that Leese specifically recruited Epstein for British intelligence (MI6). This claim is reported through a named individual with direct knowledge but has not been verified by any court proceeding. Leese himself has never publicly commented. The British intelligence thread in the Epstein story is consistently underreported.",orgs:["British Intelligence","John Mitchell","Steven Hoffenberg"]},
+];
+
+const links = [
+  {source:"Jeffrey Epstein",target:"Donald Barr",strength:3},
+  {source:"Jeffrey Epstein",target:"Bear Stearns",strength:3},
+  {source:"Jeffrey Epstein",target:"Leslie Wexner",strength:3},
+  {source:"Jeffrey Epstein",target:"Ghislaine Maxwell",strength:3},
+  {source:"Jeffrey Epstein",target:"Trilateral Commission",strength:2},
+  {source:"Jeffrey Epstein",target:"Council on Foreign Relations",strength:2},
+  {source:"Jeffrey Epstein",target:"Rockefeller University",strength:2},
+  {source:"Jeffrey Epstein",target:"Austrian Passport",strength:2},
+  {source:"Jeffrey Epstein",target:"Adnan Khashoggi",strength:2},
+  {source:"Jeffrey Epstein",target:"Steven Hoffenberg",strength:2},
+  {source:"Donald Barr",target:"CIA / O.S.S.",strength:3},
+  {source:"Donald Barr",target:"William Barr",strength:3},
+  {source:"Donald Barr",target:"Dalton School",strength:3},
+  {source:"William Barr",target:"CIA / O.S.S.",strength:2},
+  {source:"CIA / O.S.S.",target:"Southern Air Transport",strength:3},
+  {source:"CIA / O.S.S.",target:"PROMIS Software",strength:2},
+  {source:"CIA / O.S.S.",target:"Iran-Contra",strength:3},
+  {source:"CIA / O.S.S.",target:"British Intelligence",strength:2},
+  {source:"Southern Air Transport",target:"Leslie Wexner",strength:2},
+  {source:"Robert Maxwell",target:"PROMIS Software",strength:3},
+  {source:"Robert Maxwell",target:"Mossad / Israeli Intel",strength:3},
+  {source:"Robert Maxwell",target:"British Intelligence",strength:2},
+  {source:"Robert Maxwell",target:"Ghislaine Maxwell",strength:3},
+  {source:"Robert Maxwell",target:"Steven Hoffenberg",strength:2},
+  {source:"Mossad / Israeli Intel",target:"PROMIS Software",strength:2},
+  {source:"Mossad / Israeli Intel",target:"Ghislaine Maxwell",strength:2},
+  {source:"Steven Hoffenberg",target:"Douglas Leese",strength:2},
+  {source:"Steven Hoffenberg",target:"John Mitchell",strength:2},
+  {source:"Douglas Leese",target:"British Intelligence",strength:3},
+  {source:"John Mitchell",target:"Iran-Contra",strength:1},
+  {source:"Adnan Khashoggi",target:"Iran-Contra",strength:3},
+  {source:"Iran-Contra",target:"George H.W. Bush",strength:2},
+  {source:"George H.W. Bush",target:"CIA / O.S.S.",strength:3},
+  {source:"Edgar Bronfman",target:"Bear Stearns",strength:2},
+  {source:"Edgar Bronfman",target:"Mega Group",strength:3},
+  {source:"Leslie Wexner",target:"Mega Group",strength:3},
+  {source:"Ronald Lauder",target:"Mega Group",strength:3},
+  {source:"Alan Greenberg",target:"Bear Stearns",strength:3},
+  {source:"Alan Greenberg",target:"Dalton School",strength:2},
+  {source:"Alan Greenberg",target:"Jeffrey Epstein",strength:2},
+  {source:"David Rockefeller",target:"Trilateral Commission",strength:3},
+  {source:"David Rockefeller",target:"Council on Foreign Relations",strength:3},
+  {source:"David Rockefeller",target:"Jeffrey Epstein",strength:2},
+  {source:"David Rockefeller",target:"Rockefeller University",strength:3},
+];
+
+// Legend
+const legEl = document.getElementById("legend");
+Object.entries(C).forEach(([k,col])=>{
+  const row = document.createElement("div");
+  row.className = "lr";
+  row.innerHTML = `<div class="ld" style="background:${col}"></div><span>${GL[k]}</span>`;
+  legEl.appendChild(row);
+});
+
+const netEl = document.getElementById("net");
+const W = netEl.clientWidth, H = netEl.clientHeight;
+const svg = d3.select("#net").append("svg");
+
+svg.append("rect").attr("width","100%").attr("height","100%").attr("fill","#060b12");
+
+const defs = svg.append("defs");
+const rg = defs.append("radialGradient").attr("id","rg").attr("cx","50%").attr("cy","50%").attr("r","50%");
+rg.append("stop").attr("offset","0%").attr("stop-color","#1a3a5c").attr("stop-opacity","0.35");
+rg.append("stop").attr("offset","100%").attr("stop-color","#060b12").attr("stop-opacity","0");
+svg.append("rect").attr("width","100%").attr("height","100%").attr("fill","url(#rg)");
+
+defs.append("marker").attr("id","arr").attr("viewBox","0 0 10 10").attr("refX",24).attr("refY",5)
+  .attr("markerWidth",4).attr("markerHeight",4).attr("orient","auto-start-reverse")
+  .append("path").attr("d","M2 1L8 5L2 9").attr("fill","none")
+  .attr("stroke","rgba(255,255,255,0.2)").attr("stroke-width",1.5)
+  .attr("stroke-linecap","round").attr("stroke-linejoin","round");
+
+const g = svg.append("g");
+svg.call(d3.zoom().scaleExtent([0.2,6]).on("zoom",e=>g.attr("transform",e.transform)));
+
+const sim = d3.forceSimulation(nodes)
+  .force("link",d3.forceLink(links).id(d=>d.id).distance(d=>165-d.strength*20))
+  .force("charge",d3.forceManyBody().strength(-580))
+  .force("center",d3.forceCenter(W/2,H/2))
+  .force("collision",d3.forceCollide().radius(d=>d.size+30));
+
+const linkEl = g.selectAll("line").data(links).enter().append("line")
+  .attr("stroke","rgba(255,255,255,0.35)")
+  .attr("stroke-width",d=>Math.max(1.2,d.strength*0.8))
+  .attr("marker-end","url(#arr)");
+
+const nodeG = g.selectAll("g.n").data(nodes).enter().append("g").attr("class","n")
+  .style("cursor","pointer")
+  .call(d3.drag()
+    .on("start",(e,d)=>{if(!e.active)sim.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y})
+    .on("drag",(e,d)=>{d.fx=e.x;d.fy=e.y})
+    .on("end",(e,d)=>{if(!e.active)sim.alphaTarget(0);d.fx=null;d.fy=null}));
+
+nodeG.append("circle").attr("class","pulse")
+  .attr("r",d=>d.size+10).attr("fill",d=>C[d.group])
+  .attr("fill-opacity",0.05).attr("stroke","none");
+
+nodeG.append("circle").attr("class","ring")
+  .attr("r",d=>d.size).attr("fill",d=>C[d.group])
+  .attr("fill-opacity",0.12).attr("stroke",d=>C[d.group])
+  .attr("stroke-width",d=>d.group==="central"?2:1).attr("stroke-opacity",0.7);
+
+nodeG.append("circle").attr("class","core")
+  .attr("r",d=>Math.max(4,d.size*0.3))
+  .attr("fill",d=>C[d.group]).attr("fill-opacity",1);
+
+// Labels with dark stroke for readability
+nodeG.append("text").attr("class","lbl")
+  .text(d=>d.id)
+  .attr("text-anchor","middle")
+  .attr("y",d=>d.size+17)
+  .attr("font-size",d=>d.group==="central"?13:11)
+  .attr("font-family","inherit")
+  .attr("font-weight",d=>d.group==="central"?"700":"500")
+  .attr("fill",d=>C[d.group])
+  .attr("fill-opacity",d=>d.group==="central"?1:0.8)
+  .attr("paint-order","stroke")
+  .attr("stroke","#060b12")
+  .attr("stroke-width","4px")
+  .attr("stroke-linejoin","round")
+  .attr("pointer-events","none");
+
+const panel = document.getElementById("info-panel");
+
+function setActive(d){
+  const conn = new Set([d.id]);
+  links.forEach(l=>{
+    if(l.source.id===d.id) conn.add(l.target.id);
+    if(l.target.id===d.id) conn.add(l.source.id);
+  });
+  nodeG.select(".ring")
+    .attr("fill-opacity",n=>conn.has(n.id)?0.25:0.04)
+    .attr("stroke-opacity",n=>conn.has(n.id)?1:0.12);
+  nodeG.select(".core").attr("fill-opacity",n=>conn.has(n.id)?1:0.18);
+  nodeG.select(".lbl")
+    .attr("fill-opacity",n=>n.id===d.id?1:conn.has(n.id)?0.9:0.15)
+    .attr("font-size",n=>n.id===d.id?14:n.group==="central"?13:11)
+    .attr("font-weight",n=>n.id===d.id||conn.has(n.id)?"700":"500");
+  linkEl
+    .attr("stroke",l=>(l.source.id===d.id||l.target.id===d.id)?C[d.group]:"rgba(255,255,255,0.06)")
+    .attr("stroke-width",l=>(l.source.id===d.id||l.target.id===d.id)?Math.max(2,l.strength):0.5)
+    .attr("stroke-opacity",1);
+  const orgs=(d.orgs||[]).map(o=>`<span class="ptag" style="background:${C[d.group]}22;color:${C[d.group]};border:0.5px solid ${C[d.group]}44">${o}</span>`).join("");
+  panel.innerHTML=`
+    <div class="pname" style="color:${C[d.group]}">${d.id}</div>
+    ${orgs?`<div class="ptags">${orgs}</div>`:""}
+    <div class="plyric" style="border-left-color:${C[d.group]}66">${d.lyric}</div>
+    <div class="pdesc">${d.info}</div>
+  `;
+}
+
+function resetAll(){
+  nodeG.select(".ring").attr("fill-opacity",0.12).attr("stroke-opacity",0.7);
+  nodeG.select(".core").attr("fill-opacity",1);
+  nodeG.select(".lbl")
+    .attr("fill-opacity",d=>d.group==="central"?1:0.8)
+    .attr("font-size",d=>d.group==="central"?13:11)
+    .attr("font-weight",d=>d.group==="central"?"700":"500");
+  linkEl.attr("stroke","rgba(255,255,255,0.35)").attr("stroke-width",d=>Math.max(1.2,d.strength*0.8)).attr("stroke-opacity",1);
+  panel.innerHTML=`<div id="hint">Click any node to explore connections and source material</div>`;
+}
+
+nodeG.on("click",(e,d)=>{e.stopPropagation();setActive(d);});
+svg.on("click",resetAll);
+
+function filterGroup(grp,btn){
+  document.querySelectorAll(".btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  const show=d=>grp==="all"||d.group===grp||d.group==="central";
+  nodeG.style("opacity",d=>show(d)?1:0.05);
+  linkEl.attr("stroke-opacity",l=>grp==="all"||(show(l.source)||show(l.target))?1:0.01);
+  resetAll();
+}
+window.filterGroup=filterGroup;
+
+sim.on("tick",()=>{
+  linkEl.attr("x1",d=>d.source.x).attr("y1",d=>d.source.y)
+        .attr("x2",d=>d.target.x).attr("y2",d=>d.target.y);
+  nodeG.attr("transform",d=>`translate(${d.x},${d.y})`);
+});
+</script>
+</body>
+</html>
