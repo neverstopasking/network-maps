@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>The PROMIS — I'm Curious</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Permanent+Marker&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060609;overflow:hidden;width:100vw;height:100vh;user-select:none}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:2000;opacity:0.3}
+
+#board{position:absolute;width:1080px;height:2400px;top:0;left:0;background:#060609;transform-origin:0 0}
+#board.animating{transition:transform 2s cubic-bezier(0.77,0,0.175,1)}
+#strings{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+.string{stroke:#ff2d55;stroke-width:1.2;fill:none;opacity:0.18;filter:drop-shadow(0 0 1px #ff2d55);transition:opacity 1.2s,stroke-width 1.2s,filter 1.2s}
+.string.active{opacity:1;stroke-width:2.5;filter:drop-shadow(0 0 8px #ff2d55) drop-shadow(0 0 22px #ff2d55)}
+
+.node{position:absolute;transition:filter 1s,box-shadow 1s}
+.polaroid,.inst,.octopus-node,.hub,.daughter-pol{filter:brightness(0.5) saturate(0.5)}
+.polaroid.active,.inst.active,.octopus-node.active,.hub.active,.daughter-pol.active{filter:brightness(1) saturate(1)!important}
+.doc,.sticky,.illus{filter:brightness(0.15) blur(3px);transition:filter 1s}
+.doc.active,.sticky.active,.illus.active{filter:brightness(1) blur(0px)!important}
+
+/* POLAROIDS */
+.polaroid{background:#f0ead8;padding:7px 7px 36px 7px;box-shadow:3px 3px 16px rgba(0,0,0,0.9)}
+.polaroid.active{box-shadow:3px 3px 16px rgba(0,0,0,0.9),0 0 40px rgba(255,45,85,0.6)}
+.polaroid .photo{width:100%;background:#151520;display:flex;align-items:center;justify-content:center;font-size:46px;overflow:hidden}
+.polaroid .photo img{width:100%;height:100%;object-fit:cover}
+.polaroid .cap{font-family:'Permanent Marker',cursive;color:#2a1f0e;font-size:9.5px;text-align:center;margin-top:5px;line-height:1.3}
+
+/* DAUGHTER POLAROIDS */
+.daughter-pol{background:#18091e;border:2px solid #8844cc;padding:7px 7px 36px 7px;box-shadow:3px 3px 16px rgba(0,0,0,0.9)}
+.daughter-pol.active{box-shadow:3px 3px 16px rgba(0,0,0,0.9),0 0 35px rgba(136,68,204,0.7)}
+.daughter-pol .photo{width:100%;background:#100515;display:flex;align-items:center;justify-content:center;font-size:46px;overflow:hidden;border:1px solid #440066}
+.daughter-pol .cap{font-family:'Permanent Marker',cursive;color:#cc88ff;font-size:9px;text-align:center;margin-top:5px;line-height:1.3}
+
+/* VICTIM POLAROIDS */
+.victim-pol{background:#1a0808;border:2px solid #440000;padding:6px 6px 28px 6px;box-shadow:3px 3px 14px rgba(0,0,0,0.9)}
+.victim-pol.active{box-shadow:3px 3px 14px rgba(0,0,0,0.9),0 0 28px rgba(200,0,0,0.7)!important}
+.victim-pol .photo{background:#0d0505;border:1px solid #330000;font-size:36px}
+.victim-pol .cap{color:#cc8888;font-size:8.5px}
+
+/* BADGES */
+.badge{position:absolute;top:-10px;right:-10px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;box-shadow:0 2px 6px rgba(0,0,0,0.8);z-index:10;border:2px solid rgba(0,0,0,0.5)}
+.b2{top:14px}
+.bd{background:#aa0000}.bi{background:#0d1a55}.bl{background:#1a3a0d}.bp{background:#3a2a00}.bf{background:#2a1a00}
+@keyframes pulse-red{0%,100%{box-shadow:0 2px 6px rgba(0,0,0,0.8)}50%{box-shadow:0 0 18px rgba(255,0,0,0.95),0 0 32px rgba(255,0,0,0.5)}}
+.badge.pulse{animation:pulse-red 1.5s ease-in-out infinite}
+
+/* HUB NODES — CIA/DOJ/FBI — large, central, distinctive */
+.hub{border:3px solid #333;padding:18px 22px;text-align:center;font-family:'Special Elite',cursive;min-width:148px}
+.hub .hi{font-size:38px;display:block;margin-bottom:6px}
+.hub .hl{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;line-height:1.4;font-weight:bold}
+.hub .hsub{font-size:9px;letter-spacing:1px;opacity:0.7;margin-top:3px;text-transform:uppercase}
+.hub-cia{border-color:#2244aa;background:#040810;color:#5599ff;box-shadow:0 0 20px rgba(34,68,170,0.3)}
+.hub-doj{border-color:#885500;background:#0d0800;color:#ffaa33;box-shadow:0 0 20px rgba(136,85,0,0.3)}
+.hub-fbi{border-color:#880000;background:#0d0400;color:#ff4444;box-shadow:0 0 20px rgba(136,0,0,0.3)}
+.hub-cia.active{box-shadow:0 0 50px rgba(34,68,170,0.8)!important}
+.hub-doj.active{box-shadow:0 0 50px rgba(136,85,0,0.8)!important}
+.hub-fbi.active{box-shadow:0 0 50px rgba(136,0,0,0.8)!important}
+
+/* INSTITUTION NODES */
+.inst{border:2px solid #333;padding:11px 14px;text-align:center;font-family:'Special Elite',cursive}
+.inst .ii{font-size:30px;display:block;margin-bottom:4px}
+.inst .il{font-size:9.5px;letter-spacing:0.8px;text-transform:uppercase;line-height:1.4}
+.i-mossad{border-color:#2a4a1a;background:#050d08;color:#44aa44}
+.i-bcci{border-color:#2a0a0a;background:#0d0505;color:#cc4422}
+.i-iran{border-color:#3a1a0a;background:#0d0805;color:#cc6622}
+.i-casey{border-color:#1a2a3a;background:#050810;color:#5588aa}
+.i-cabazon{border-color:#3a3a1a;background:#0d0d05;color:#aaaa44}
+.i-chiliad{border-color:#440066;background:#08000d;color:#aa44ff}
+.i-alanwade{border-color:#1a3a4a;background:#040a0d;color:#44aacc}
+
+/* OCTOPUS */
+.octopus-node{background:#0a0512;border:2px solid #6600aa;padding:14px;text-align:center;font-family:'Special Elite',cursive;color:#cc44ff;min-width:120px}
+.octopus-node .oi{font-size:34px;display:block;margin-bottom:5px}
+.octopus-node .ol{font-size:11px;letter-spacing:2px;text-transform:uppercase}
+.octopus-node.active{box-shadow:0 0 38px rgba(102,0,170,0.8)!important}
+
+/* STICKIES */
+.sticky{padding:9px 11px;font-family:'Permanent Marker',cursive;font-size:10.5px;line-height:1.5;box-shadow:3px 3px 12px rgba(0,0,0,0.7);max-width:155px}
+.sy{background:#f5d800;color:#1a1000}.sp{background:#ff6b9d;color:#1a0010}
+.sb{background:#00d4ff;color:#001a1a}.sg{background:#39ff14;color:#001a00}.so{background:#ff8c00;color:#1a0800}
+
+/* DOCS */
+.doc{background:#ede6d0;color:#1a1208;padding:10px 12px;font-family:'Special Elite',cursive;font-size:8.5px;line-height:1.6;max-width:180px;box-shadow:2px 2px 10px rgba(0,0,0,0.9);border-left:3px solid transparent}
+.doc.active{border-left-color:#ff2d55!important}
+.doc .hed{font-size:10.5px;font-weight:bold;border-bottom:1px solid #555;padding-bottom:3px;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;color:#0a0804}
+.stamp{display:inline-block;border:2px solid #cc0000;color:#cc0000;font-family:'Courier Prime',monospace;font-size:7.5px;font-weight:bold;padding:1px 4px;transform:rotate(-7deg);margin-top:5px;letter-spacing:2px;opacity:.85}
+
+/* ILLUS */
+.illus{background:#0a0a14;border:1px solid #1e1e38;box-shadow:3px 3px 16px rgba(0,0,0,0.9);overflow:hidden}
+.illus svg{display:block}
+
+/* LYRIC NOTES */
+.lnote{position:absolute;font-family:'Permanent Marker',cursive;font-size:12.5px;line-height:1.7;color:#1a1200;padding:15px 17px 18px;box-shadow:4px 5px 18px rgba(0,0,0,0.8);opacity:0;transform:scale(0.88) rotate(var(--rot,0deg));transition:opacity 0.55s ease,transform 0.55s ease;pointer-events:none;z-index:200;min-width:215px;max-width:290px}
+.lnote::before{content:'';position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:50px;height:16px;background:rgba(255,255,255,0.45);box-shadow:0 1px 3px rgba(0,0,0,0.3)}
+.lnote.show{opacity:1;transform:scale(1) rotate(var(--rot,0deg))}
+.lnote em{color:#cc0000;font-style:normal;text-decoration:underline;text-decoration-style:wavy}
+.lnote strong{color:#003399}
+.ln-y{background:#f5e030}.ln-y2{background:#f0d418}.ln-p{background:#ffb3cc}
+.ln-b{background:#b3f0ff}.ln-g{background:#c8ffb3}.ln-o{background:#ffd080}.ln-w{background:#f5f0e8}
+
+#vig{position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 38%,rgba(0,0,0,0.85) 100%);pointer-events:none;z-index:600}
+#prog{position:fixed;top:0;left:0;right:0;height:3px;background:rgba(255,255,255,0.08);z-index:900}
+#pf{height:100%;background:linear-gradient(90deg,#ff2d55,#ff8c00);width:0%;transition:width .4s;box-shadow:0 0 6px #ff2d55}
+#bn{position:fixed;top:14px;right:18px;font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.18);z-index:900}
+#ui{position:fixed;bottom:max(20px,env(safe-area-inset-bottom,20px));left:50%;transform:translateX(-50%);z-index:900;display:flex;align-items:center;gap:10px}
+.ctrl{width:38px;height:38px;border-radius:50%;background:rgba(10,10,18,0.88);border:1px solid rgba(255,45,85,0.35);color:#ff2d55;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s;backdrop-filter:blur(6px)}
+.ctrl:hover{background:rgba(255,45,85,0.18);border-color:#ff2d55}
+#pause-btn{width:46px;height:46px;font-size:16px}
+
+/* TAP ZONES — mobile navigation */
+#tap-left,#tap-right{
+  position:fixed;top:0;width:28%;height:calc(100% - 100px);
+  z-index:550;pointer-events:auto;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity 0.15s;
+}
+#tap-left{left:0}
+#tap-right{right:0}
+#tap-left:active{opacity:1;background:linear-gradient(to right,rgba(255,45,85,0.12),transparent)}
+#tap-right:active{opacity:1;background:linear-gradient(to left,rgba(255,45,85,0.12),transparent)}
+.tap-icon{font-family:'Courier Prime',monospace;font-size:22px;color:rgba(255,45,85,0.5);pointer-events:none}
+/* On mobile, make controls bigger and easier to tap */
+@media(max-width:900px),(pointer:coarse){
+  .ctrl{width:48px;height:48px;font-size:18px}
+  #pause-btn{width:56px;height:56px;font-size:20px}
+  #ui{gap:14px;bottom:24px}
+  #cam-hint{display:none}
+  #bn{font-size:11px;top:16px;right:16px}
+  .lnote{font-size:11.5px;min-width:185px;max-width:250px;padding:13px 15px 16px}
+}
+
+#cam-hint{position:fixed;bottom:68px;left:50%;transform:translateX(-50%);font-family:'Courier Prime',monospace;font-size:8.5px;letter-spacing:2px;color:rgba(255,255,255,0.15);pointer-events:none;z-index:900}
+#paused-badge{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Courier Prime',monospace;font-size:11px;letter-spacing:4px;color:rgba(255,45,85,0.6);pointer-events:none;z-index:700;opacity:0;transition:opacity 0.3s}
+#paused-badge.show{opacity:1}
+#title{position:fixed;inset:0;background:#060609;z-index:1500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:opacity 1.2s;cursor:pointer}
+#title.gone{opacity:0;pointer-events:none}
+.ts{font-family:'Courier Prime',monospace;font-size:11px;letter-spacing:7px;color:#ff2d55;text-transform:uppercase}
+.tm{font-family:'Special Elite',cursive;font-size:clamp(32px,7vw,68px);color:#f0ead8;text-align:center}
+.tu{font-family:'Courier Prime',monospace;font-size:11px;color:rgba(240,234,216,0.28);letter-spacing:4px;text-transform:uppercase}
+.tc{margin-top:40px;font-family:'Courier Prime',monospace;font-size:11px;color:rgba(255,45,85,0.55);letter-spacing:3px;animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:.25}50%{opacity:1}}
+</style>
+</head>
+<body>
+<div id="title">
+  <div class="ts">I'm Curious</div>
+  <div class="tm">THE PROMIS</div>
+  <div class="tu">Robert Maxwell · Part Two</div>
+  <div class="tc">← → TO NAVIGATE</div>
+</div>
+<div id="prog"><div id="pf"></div></div>
+<div id="vig"></div>
+<div id="bn"></div>
+<div id="paused-badge">⏸ PAUSED</div>
+<div id="cam-hint">DRAG TO PAN · SCROLL TO ZOOM · ← → TO ADVANCE</div>
+<div id="tap-left"><span class="tap-icon">◀</span></div>
+<div id="tap-right"><span class="tap-icon">▶</span></div>
+<div id="ui">
+  <div class="ctrl" id="back-btn">◀</div>
+  <div class="ctrl" id="pause-btn">⏸</div>
+  <div class="ctrl" id="fwd-btn">▶</div>
+  <div class="ctrl" id="reset-btn">⌖</div>
+</div>
+
+<div id="board">
+<svg id="strings" xmlns="http://www.w3.org/2000/svg"></svg>
+
+<!-- ════════════════════════════════════════════
+  LAYOUT MAP (board: 3200 x 2400)
+  
+  TOP ROW (y:80-320):
+  Maxwell(200)  Hamiltons(680)  Casolaro(1340)  Standorf(1580)  Barr(2060)  Epstein(2480)
+  
+  CENTER ROW (y:700-1000) — THE HUBS:
+  Wackenhut(200)  Mossad(480)  CIA(760)  DOJ(1100)  FBI(1440)  Barr-strings  Daughters(1820-2200)
+  
+  LOWER ROW (y:1200-1500):
+  Cabazon+Rico(400-700)  Tower+Nuclear(1000)  Octopus+Iran+BCCI(1400-1700)  Epstein-fails(2000)
+  
+  BOTTOM (y:1700-1900):
+  Victims  Recap notes  Closing question
+════════════════════════════════════════════ -->
+
+<!-- ═══ TOP ROW ═══ -->
+
+<!-- MAXWELL cluster -->
+<div class="node polaroid" id="pol-maxwell" style="left:50px;top:60px;width:158px;transform:rotate(-3deg)">
+  <div class="photo" style="height:128px">🕵️</div>
+  <div class="cap">ROBERT MAXWELL<br>Triple Agent</div>
+  <div class="badge bi">👁️</div><div class="badge bd b2" id="maxwell-death-badge">🔴</div>
+</div>
+<div class="node doc" id="doc-fbi" style="left:230px;top:58px;transform:rotate(-1deg)">
+  <div class="hed">FBI File on Maxwell</div>
+  Opened: 1950s. Watched for decades.<br><br>Still walked backdoored software into US nuclear facilities.
+  <div class="stamp">CLASSIFIED</div>
+</div>
+
+<!-- HAMILTONS + DOJ cluster -->
+<div class="node polaroid" id="pol-hamiltons" style="left:30px;top:280px;width:148px;transform:rotate(2deg)">
+  <div class="photo" style="height:124px">👫</div>
+  <div class="cap">BILL & NANCY HAMILTON<br>Inslaw Inc.</div>
+  <div class="badge bf">💰</div>
+</div>
+<div class="node sticky sy" id="st-promis" style="left:208px;top:282px;transform:rotate(-2deg)">PROMIS · 1982<br>DOJ Contract<br>Connects all<br>databases</div>
+<div class="node doc" id="doc-judge" style="left:370px;top:274px;transform:rotate(1deg)">
+  <div class="hed">Federal Court · 1988</div>
+  DOJ obtained PROMIS through "trickery, fraud, and deceit."<br><br>— Judge George Bason
+  <div class="stamp">HIS WORDS</div>
+</div>
+
+<!-- CASOLARO + STANDORF cluster -->
+<div class="node polaroid" id="pol-casolaro" style="left:560px;top:272px;width:148px;transform:rotate(-3deg)">
+  <div class="photo" style="height:120px">📰</div>
+  <div class="cap">DANNY CASOLARO<br>Journalist · †Aug 10, 1991</div>
+  <div class="badge bp">📰</div><div class="badge bd b2">🔴</div>
+</div>
+<div class="node polaroid" id="pol-standorf" style="left:748px;top:258px;width:142px;transform:rotate(3deg)">
+  <div class="photo" style="height:114px">🔒</div>
+  <div class="cap">ALAN STANDORF<br>NSA Source · †1991</div>
+  <div class="badge bi">👁️</div><div class="badge bd b2">🔴</div>
+</div>
+<div class="node doc" id="doc-bathtub" style="left:420px;top:1152px;transform:rotate(-2deg)">
+  <div class="hed">Martinsburg WV · Aug 10</div>
+  Wrists slashed 10+ times. Research: gone. Body embalmed BEFORE family notified. Illegal under WV law.
+  <div class="stamp">RULED SUICIDE</div>
+</div>
+<div class="node sticky so" id="st-octopus" style="left:620px;top:1148px;transform:rotate(-3deg)">"THE OCTOPUS"<br>PROMIS+Iran-Contra<br>BCCI+Weapons<br>= same people</div>
+
+<!-- BARR cluster -->
+<div class="node polaroid" id="pol-barr" style="left:440px;top:710px;width:148px;transform:rotate(-2deg)">
+  <div class="photo" style="height:124px">⚖️</div>
+  <div class="cap">WILLIAM BARR<br>AG 1991 · AG 2019</div>
+  <div class="badge bl">⚖️</div>
+</div>
+<div class="node doc" id="doc-coverup" style="left:620px;top:704px;transform:rotate(2deg)">
+  <div class="hed">NY Times · 1992</div>
+  Barr shuts BCCI probe. Recommends Iran-Contra pardons. Own appointee on PROMIS investigation.
+  <div class="stamp">COVER-UP GENERAL</div>
+</div>
+<div class="node sticky sp" id="st-aug10" style="left:800px;top:1148px;transform:rotate(3deg)">AUG 10, 1991<br>Casolaro dies<br>↓<br>AUG 10, 2019<br>Epstein dies</div>
+
+<!-- EPSTEIN cluster -->
+<div class="node polaroid" id="pol-epstein" style="left:788px;top:710px;width:148px;transform:rotate(3deg)">
+  <div class="photo" style="height:120px">🏦</div>
+  <div class="cap">JEFFREY EPSTEIN<br>†Aug 10, 2019</div>
+  <div class="badge bf">💰</div><div class="badge bd b2">🔴</div>
+</div>
+<div class="node doc" id="doc-epsfails" style="left:380px;top:1572px;transform:rotate(-2deg)">
+  <div class="hed">MCC · Aug 10, 2019</div>
+  Guards asleep. Logs falsified. 10/11 cameras dead. Master footage DESTROYED. 62-sec gap. New will 2 days prior.
+  <div class="stamp">DOJ IG REPORT</div>
+</div>
+<div class="node illus" id="ill-aug10" style="left:620px;top:1564px;width:210px;height:136px;transform:rotate(-1deg)">
+<svg width="210" height="136" viewBox="0 0 210 136">
+  <rect x="7" y="13" width="88" height="106" rx="3" fill="#1a0808" stroke="#ff2d55" stroke-width="1.5"/>
+  <rect x="7" y="13" width="88" height="22" rx="3" fill="#aa0000"/>
+  <text x="51" y="29" text-anchor="middle" fill="white" font-size="7.5" font-family="Courier Prime,monospace" font-weight="bold">AUGUST 1991</text>
+  <text x="51" y="79" text-anchor="middle" fill="#ff2d55" font-size="38" font-family="Special Elite,cursive">10</text>
+  <text x="51" y="101" text-anchor="middle" fill="#ff7777" font-size="5.5" font-family="Courier Prime,monospace">DANNY CASOLARO</text>
+  <text x="51" y="110" text-anchor="middle" fill="#ff7777" font-size="5.5" font-family="Courier Prime,monospace">MARTINSBURG, WV</text>
+  <rect x="115" y="13" width="88" height="106" rx="3" fill="#1a0808" stroke="#ff2d55" stroke-width="1.5"/>
+  <rect x="115" y="13" width="88" height="22" rx="3" fill="#aa0000"/>
+  <text x="159" y="29" text-anchor="middle" fill="white" font-size="7.5" font-family="Courier Prime,monospace" font-weight="bold">AUGUST 2019</text>
+  <text x="159" y="79" text-anchor="middle" fill="#ff2d55" font-size="38" font-family="Special Elite,cursive">10</text>
+  <text x="159" y="101" text-anchor="middle" fill="#ff7777" font-size="5.5" font-family="Courier Prime,monospace">JEFFREY EPSTEIN</text>
+  <text x="159" y="110" text-anchor="middle" fill="#ff7777" font-size="5.5" font-family="Courier Prime,monospace">MCC, NEW YORK</text>
+  <defs><marker id="ar" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#f5d800"/></marker></defs>
+  <path d="M97 65 L113 65" stroke="#f5d800" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="105" y="59" text-anchor="middle" fill="#f5d800" font-size="5.5" font-family="Courier Prime,monospace">28 yrs</text>
+  <text x="105" y="129" text-anchor="middle" fill="#f5d800" font-size="6" font-family="Courier Prime,monospace">SAME DATE · SAME AG</text>
+</svg>
+</div>
+
+<!-- ═══ CENTER ROW — THE THREE HUBS ═══ -->
+
+<!-- Mossad — left of CIA -->
+<div class="node inst i-mossad" id="inst-mossad" style="left:30px;top:720px;width:122px;transform:rotate(1deg)">
+  <span class="ii">✡️</span><div class="il">Mossad<br>Israeli Intel</div>
+</div>
+
+<!-- William Casey -->
+<div class="node inst i-casey" id="inst-casey" style="left:180px;top:720px;width:122px;transform:rotate(-2deg)">
+  <span class="ii">🤵</span><div class="il">William Casey<br>CIA Director</div>
+</div>
+
+<!-- CIA HUB — left-center -->
+<div class="node hub hub-cia" id="hub-cia" style="left:30px;top:490px">
+  <span class="hi">🕶️</span>
+  <div class="hl">CIA</div>
+  <div class="hsub">Central Intelligence Agency</div>
+</div>
+
+<!-- DOJ HUB — true center -->
+<div class="node hub hub-doj" id="hub-doj" style="left:390px;top:490px">
+  <span class="hi">🏛️</span>
+  <div class="hl">DOJ</div>
+  <div class="hsub">Dept of Justice</div>
+</div>
+
+<!-- FBI HUB — right-center -->
+<div class="node hub hub-fbi" id="hub-fbi" style="left:750px;top:490px">
+  <span class="hi">🔍</span>
+  <div class="hl">FBI</div>
+  <div class="hsub">Federal Bureau of Investigation</div>
+</div>
+
+<!-- Alan Wade — CIA CIO, near FBI/CIA -->
+<div class="node inst i-alanwade" id="inst-alanwade" style="left:700px;top:1368px;width:130px;transform:rotate(2deg)">
+  <span class="ii">💾</span><div class="il">Alan Wade<br>CIA Chief Info Officer<br>Co-founded Chiliad</div>
+</div>
+
+<!-- Chiliad — connects FBI + CIA -->
+<div class="node inst i-chiliad" id="inst-chiliad" style="left:700px;top:1540px;width:130px;transform:rotate(-1deg)">
+  <span class="ii">🔗</span><div class="il">Chiliad<br>FBI Search System<br>Christine Maxwell</div>
+</div>
+
+<!-- ═══ DAUGHTER POLAROIDS — right side of center ═══ -->
+<div class="node daughter-pol" id="dau-ghislaine" style="left:50px;top:1380px;width:148px;transform:rotate(-2deg)">
+  <div class="photo" style="height:118px">👗</div>
+  <div class="cap">GHISLAINE MAXWELL<br>Sexual Blackmail<br>w/ Epstein</div>
+  <div class="badge bd">🔴</div>
+</div>
+<div class="node daughter-pol" id="dau-isabel" style="left:280px;top:1368px;width:148px;transform:rotate(2deg)">
+  <div class="photo" style="height:118px">💻</div>
+  <div class="cap">ISABEL MAXWELL<br>Silicon Valley ↔<br>Israeli Intelligence</div>
+  <div class="badge bi">👁️</div>
+</div>
+<div class="node daughter-pol" id="dau-christine" style="left:510px;top:1380px;width:148px;transform:rotate(-1deg)">
+  <div class="photo" style="height:118px">🔍</div>
+  <div class="cap">CHRISTINE MAXWELL<br>Chiliad · FBI Search<br>w/ CIA's Alan Wade</div>
+  <div class="badge bi">👁️</div>
+</div>
+
+<!-- ═══ LOWER ROW ═══ -->
+
+<!-- Wackenhut cluster -->
+<div class="node polaroid" id="pol-wackenhut" style="left:30px;top:940px;width:148px;transform:rotate(-2deg)">
+  <div class="photo" style="height:122px">🔫</div>
+  <div class="cap">WACKENHUT CORP<br>CIA-Staffed Security</div>
+  <div class="badge bi">👁️</div>
+</div>
+<div class="node polaroid" id="pol-geo" style="left:200px;top:950px;width:138px;transform:rotate(2deg)">
+  <div class="photo" style="height:112px">🏢</div>
+  <div class="cap">GEO GROUP<br>Largest For-Profit Prison Co.<br>Record Profits · 2025</div>
+  <div class="badge bl">💰</div>
+</div>
+
+<!-- Cabazon + Rico -->
+<div class="node inst i-cabazon" id="inst-cabazon" style="left:380px;top:932px;width:128px;transform:rotate(-1deg)">
+  <span class="ii">🏕️</span><div class="il">Cabazon Indian<br>Reservation<br>Sovereign Land</div>
+</div>
+<div class="node polaroid" id="pol-rico" style="left:530px;top:930px;width:148px;transform:rotate(3deg)">
+  <div class="photo" style="height:120px">💻</div>
+  <div class="cap">MICHAEL RICONOSCIUTO<br>Backdoor Installer</div>
+  <div class="badge bi">👁️</div>
+</div>
+<div class="node illus" id="ill-db" style="left:400px;top:480px;width:210px;height:136px;transform:rotate(-1deg)">
+<svg width="210" height="136" viewBox="0 0 210 136">
+  <g opacity="0.8">
+    <ellipse cx="33" cy="24" rx="18" ry="6.5" fill="#1e3a5f" stroke="#00d4ff" stroke-width="1"/>
+    <rect x="15" y="24" width="36" height="30" fill="#0d1f3c" stroke="#00d4ff" stroke-width="1"/>
+    <ellipse cx="33" cy="54" rx="18" ry="6.5" fill="#1e3a5f" stroke="#00d4ff" stroke-width="1"/>
+    <text x="33" y="42" text-anchor="middle" fill="#00d4ff" font-size="6" font-family="Courier Prime,monospace">FBI</text>
+    <ellipse cx="105" cy="24" rx="18" ry="6.5" fill="#1e3a5f" stroke="#00d4ff" stroke-width="1"/>
+    <rect x="87" y="24" width="36" height="30" fill="#0d1f3c" stroke="#00d4ff" stroke-width="1"/>
+    <ellipse cx="105" cy="54" rx="18" ry="6.5" fill="#1e3a5f" stroke="#00d4ff" stroke-width="1"/>
+    <text x="105" y="42" text-anchor="middle" fill="#00d4ff" font-size="6" font-family="Courier Prime,monospace">DOJ</text>
+    <ellipse cx="177" cy="24" rx="18" ry="6.5" fill="#1e3a5f" stroke="#00d4ff" stroke-width="1"/>
+    <rect x="159" y="24" width="36" height="30" fill="#0d1f3c" stroke="#00d4ff" stroke-width="1"/>
+    <ellipse cx="177" cy="54" rx="18" ry="6.5" fill="#1e3a5f" stroke="#00d4ff" stroke-width="1"/>
+    <text x="177" y="42" text-anchor="middle" fill="#00d4ff" font-size="6" font-family="Courier Prime,monospace">CIA</text>
+  </g>
+  <line x1="51" y1="38" x2="87" y2="38" stroke="#39ff14" stroke-width="1.8" stroke-dasharray="4,3"><animate attributeName="stroke-dashoffset" from="14" to="0" dur="1s" repeatCount="indefinite"/></line>
+  <line x1="123" y1="38" x2="159" y2="38" stroke="#39ff14" stroke-width="1.8" stroke-dasharray="4,3"><animate attributeName="stroke-dashoffset" from="14" to="0" dur="1s" repeatCount="indefinite"/></line>
+  <text x="105" y="84" text-anchor="middle" fill="#39ff14" font-size="8" font-family="Courier Prime,monospace" font-weight="bold">PROMIS CONNECTS THEM ALL</text>
+  <text x="105" y="96" text-anchor="middle" fill="#39ff14" font-size="6" font-family="Courier Prime,monospace" opacity="0.7">cases · warrants · suspects · money</text>
+  <path d="M105 103 L105 116 L177 116 L177 103" stroke="#ff2d55" stroke-width="1.2" fill="none" stroke-dasharray="3,2"><animate attributeName="stroke-dashoffset" from="10" to="0" dur="0.8s" repeatCount="indefinite"/></path>
+  <text x="141" y="128" text-anchor="middle" fill="#ff2d55" font-size="6" font-family="Courier Prime,monospace">↑ AND THE BACK DOOR</text>
+</svg>
+</div>
+
+<!-- Tower + Nuclear -->
+<div class="node polaroid" id="pol-tower" style="left:720px;top:930px;width:145px;transform:rotate(2deg)">
+  <div class="photo" style="height:118px">🏛️</div>
+  <div class="cap">SEN. JOHN TOWER<br>Sandia / Los Alamos</div>
+  <div class="badge bl">⚖️</div>
+</div>
+<div class="node sticky sp" id="st-nuclear" style="left:890px;top:942px;transform:rotate(-2deg)">SANDIA LAB<br>LOS ALAMOS<br>Nuclear weapons<br>facilities</div>
+<div class="node illus" id="ill-globe" style="left:560px;top:60px;width:162px;height:162px;transform:rotate(-1deg)">
+<svg width="162" height="162" viewBox="0 0 162 162">
+  <text x="81" y="11" text-anchor="middle" fill="#555" font-size="6" font-family="Courier Prime,monospace" letter-spacing="1.5">DISTRIBUTED WORLDWIDE</text>
+  <circle cx="81" cy="88" r="46" fill="#050510" stroke="#00d4ff" stroke-width="1.5" opacity="0.8"/>
+  <ellipse cx="81" cy="88" rx="46" ry="14" fill="none" stroke="#00d4ff" stroke-width="0.5" opacity="0.3"/>
+  <ellipse cx="81" cy="88" rx="46" ry="30" fill="none" stroke="#00d4ff" stroke-width="0.5" opacity="0.3"/>
+  <ellipse cx="81" cy="88" rx="16" ry="46" fill="none" stroke="#00d4ff" stroke-width="0.5" opacity="0.3"/>
+  <ellipse cx="81" cy="88" rx="31" ry="46" fill="none" stroke="#00d4ff" stroke-width="0.5" opacity="0.3"/>
+  <line x1="81" y1="88" x2="32" y2="48" stroke="#ff2d55" stroke-width="1.2"><animate attributeName="opacity" values="0.2;0.9;0.2" dur="1.8s" begin="0s" repeatCount="indefinite"/></line>
+  <line x1="81" y1="88" x2="129" y2="52" stroke="#ff2d55" stroke-width="1.2"><animate attributeName="opacity" values="0.2;0.9;0.2" dur="1.8s" begin="0.36s" repeatCount="indefinite"/></line>
+  <line x1="81" y1="88" x2="125" y2="116" stroke="#ff2d55" stroke-width="1.2"><animate attributeName="opacity" values="0.2;0.9;0.2" dur="1.8s" begin="0.72s" repeatCount="indefinite"/></line>
+  <line x1="81" y1="88" x2="44" y2="122" stroke="#ff2d55" stroke-width="1.2"><animate attributeName="opacity" values="0.2;0.9;0.2" dur="1.8s" begin="1.08s" repeatCount="indefinite"/></line>
+  <line x1="81" y1="88" x2="81" y2="40" stroke="#ff2d55" stroke-width="1.2"><animate attributeName="opacity" values="0.2;0.9;0.2" dur="1.8s" begin="1.44s" repeatCount="indefinite"/></line>
+  <circle cx="32" cy="48" r="2.5" fill="#ff2d55"/><circle cx="129" cy="52" r="2.5" fill="#ff2d55"/>
+  <circle cx="125" cy="116" r="2.5" fill="#ff2d55"/><circle cx="44" cy="122" r="2.5" fill="#ff2d55"/><circle cx="81" cy="40" r="2.5" fill="#ff2d55"/>
+  <circle cx="81" cy="88" r="4" fill="#f5d800"/>
+  <text x="81" y="87" text-anchor="middle" fill="#050510" font-size="5" font-weight="bold">RM</text>
+  <text x="81" y="155" text-anchor="middle" fill="#ff2d55" font-size="6" font-family="Courier Prime,monospace">same back door · same key</text>
+</svg>
+</div>
+
+<!-- Octopus + Iran-Contra + BCCI -->
+<div class="node octopus-node" id="oct-node" style="left:30px;top:1160px">
+  <span class="oi">🐙</span><div class="ol">The Octopus</div>
+</div>
+<div class="node inst i-iran" id="inst-iran" style="left:228px;top:1148px;width:122px;transform:rotate(-2deg)">
+  <span class="ii">🔫</span><div class="il">Iran-Contra<br>Affair</div>
+</div>
+<div class="node inst i-bcci" id="inst-bcci" style="left:228px;top:1308px;width:122px;transform:rotate(2deg)">
+  <span class="ii">🏦</span><div class="il">BCCI<br>Bank of Criminals</div>
+</div>
+
+<!-- ═══ VICTIMS ROW ═══ -->
+<div class="node polaroid victim-pol" id="pol-alvarez" style="left:50px;top:1580px;width:115px;transform:rotate(-3deg)">
+  <div class="photo" style="height:88px">💀</div>
+  <div class="cap">FRED ALVAREZ<br>Tribal V. Chairman<br>†Jul 1981</div>
+  <div class="badge bd">🔴</div>
+</div>
+<div class="node polaroid victim-pol" id="pol-victims2" style="left:188px;top:1596px;width:115px;transform:rotate(2deg)">
+  <div class="photo" style="height:88px">💀</div>
+  <div class="cap">RALPH BOGER &<br>PATTY HARVEY<br>†Jul 1981</div>
+  <div class="badge bd">🔴</div>
+</div>
+
+<!-- ═══ LYRIC NOTES ═══ -->
+<!-- Each near its focal node, all within the content area -->
+<div id="ln0"  class="lnote ln-y"  style="left:30px;top:228px;--rot:-2deg">I'm curious about a <em>triple agent</em> named Robert Maxwell who sold stolen software to the KGB, to Guatemala, to our nuclear labs, and to intelligence agencies around the world who had no idea that their agencies could be spied on.</div>
+<div id="ln1"  class="lnote ln-p"  style="left:48px;top:246px;--rot:2deg">And the people who figured it out<br><em>kept ending up dead.</em></div>
+<div id="ln2"  class="lnote ln-b"  style="left:30px;top:918px;--rot:-1.5deg">The CIA and Mossad have had a formal intelligence-sharing partnership since <em>nineteen fifty-one,</em> which is just a fun fact and is completely unrelated to this story</div>
+<div id="ln3"  class="lnote ln-y"  style="left:28px;top:458px;--rot:2deg">about a husband and wife named <strong>Bill and Nancy Hamilton</strong> who in nineteen eighty-two built a piece of software called <em>PROMIS</em> for the Department of Justice. It was revolutionary.</div>
+<div id="ln4"  class="lnote ln-b"  style="left:388px;top:458px;--rot:-2deg">PROMIS could connect law-enforcement databases that had never been able to talk to each other, linking cases, warrants, suspects, and financial records across jurisdictions.</div>
+<div id="ln5"  class="lnote ln-p"  style="left:208px;top:458px;--rot:1.5deg">The DOJ took it, refused to pay for it, and drove the company into <em>bankruptcy.</em></div>
+<div id="ln6"  class="lnote ln-o"  style="left:368px;top:448px;--rot:-1deg">A federal judge later ruled the government had taken the software through <em>trickery, fraud, and deceit</em> — his words.</div>
+<div id="ln7"  class="lnote ln-y"  style="left:28px;top:1108px;--rot:-2deg">Meanwhile a private security firm, Wackenhut Corporation, had been running <em>weapons manufacturing</em> at the Cabazon Indian Reservation. Sovereign land. Outside normal U.S. jurisdiction.</div>
+<div id="ln8"  class="lnote ln-y2" style="left:46px;top:1126px;--rot:1.5deg">Wackenhut happened to be staffed with former intelligence officers and was once represented by future CIA director <em>William Casey</em> — which I'm sure is also completely unrelated.</div>
+<div id="ln9"  class="lnote ln-o"  style="left:28px;top:1760px;--rot:-2deg">In July <em>nineteen eighty-one</em> tribal vice chairman Fred Alvarez and two others started asking questions about the operation. All three were later found <em>shot execution-style.</em> The murders were never solved.</div>
+<div id="ln10" class="lnote ln-g"  style="left:350px;top:1108px;--rot:2deg">Wackenhut is now <strong>GEO Group,</strong> one of the largest for-profit prison companies in America, whose first contract was with the Department of Justice and which just posted <em>record profits</em> on government immigration detention contracts. Just another fun fact.</div>
+<div id="ln11" class="lnote ln-b"  style="left:530px;top:1108px;--rot:-1.5deg">Two years later a man named Michael Riconosciuto testified that he had installed a <em>back door</em> into PROMIS that allowed whoever controlled it to spy on the system using it. That work was done on the Cabazon reservation where Wackenhut operated.</div>
+<div id="ln12" class="lnote ln-y"  style="left:540px;top:128px;--rot:2deg">Later, Robert Maxwell <em>distributed PROMIS worldwide</em> —</div>
+<div id="ln13" class="lnote ln-o"  style="left:560px;top:1108px;--rot:-2deg">and Senator John Tower was allegedly paid to help walk the software into <strong>Sandia</strong> and <strong>Los Alamos.</strong></div>
+<div id="ln14" class="lnote ln-p"  style="left:578px;top:1126px;--rot:1.5deg">America's nuclear weapons facilities. <em>Where we design and test nuclear weapons.</em></div>
+<div id="ln15" class="lnote ln-y"  style="left:388px;top:350px;--rot:-1.5deg">A journalist named Danny Casolaro spent a year pulling at the threads connecting PROMIS to Iran-Contra, B.C.C.I., intelligence agencies, and international weapons networks. He called it: <em>The Octopus.</em></div>
+<div id="ln16" class="lnote ln-y2" style="left:28px;top:1228px;--rot:2deg">Iran-Contra. B.C.C.I. Intelligence agencies. <em>International weapons networks.</em> Same people. Every time.</div>
+<div id="ln17" class="lnote ln-p"  style="left:568px;top:340px;--rot:-2deg">In nineteen ninety-one his NSA source was <em>beaten to death</em> and found in the back seat of his car at Reagan National Airport.</div>
+<div id="ln18" class="lnote ln-y"  style="left:368px;top:368px;--rot:2deg">On <em>August tenth, nineteen ninety-one,</em> Danny was found in a hotel bathtub in West Virginia. His wrists had been slashed <em>at least ten times.</em> Every page of his research was gone.</div>
+<div id="ln19" class="lnote ln-p"  style="left:218px;top:1228px;--rot:-1.5deg">And his body was embalmed <em>before his family was even told he was dead</em> — which is illegal in West Virginia.</div>
+<div id="ln20" class="lnote ln-o"  style="left:48px;top:148px;--rot:2.5deg">Later that same year <em>Robert Maxwell fell off his yacht.</em></div>
+<div id="ln21" class="lnote ln-y2" style="left:438px;top:778px;--rot:-1.5deg">Soon after, his youngest daughter moved to New York and <em>linked up with Jeffrey Epstein.</em></div>
+<div id="ln22" class="lnote ln-y"  style="left:438px;top:796px;--rot:-1.5deg">Three months later William Barr became Attorney General and put his own appointee in charge of the PROMIS investigation. The House Judiciary Committee called it a <em>cover-up.</em></div>
+<div id="ln23" class="lnote ln-p"  style="left:456px;top:814px;--rot:1.5deg">Barr also shut down the <em>B.C.C.I. investigation</em> and recommended the <em>Iran-Contra pardons.</em></div>
+<div id="ln24" class="lnote ln-o"  style="left:474px;top:832px;--rot:-1deg">The New York Times started calling him: <em>Cover-Up General.</em></div>
+<div id="ln25" class="lnote ln-y2" style="left:768px;top:778px;--rot:2deg"><em>Twenty-eight years later</em> he was Attorney General again.</div>
+<div id="ln26" class="lnote ln-p"  style="left:768px;top:796px;--rot:-2deg">And on <em>August tenth,</em> twenty-eight years after Casolaro died, Jeffrey Epstein was found dead in a federal jail cell.</div>
+<div id="ln27" class="lnote ln-y"  style="left:768px;top:814px;--rot:1.5deg">Guards falsified their logs or fell asleep.<br>He was taken off suicide watch.<br>Allowed to hoard linens. His roommate moved.<br>Cameras weren't working. <em>Footage was destroyed.</em><br>He signed a new will two days earlier.</div>
+<div id="ln28" class="lnote ln-y2" style="left:48px;top:1448px;--rot:-1.5deg">Which I'm sure is a completely normal sequence of coincidences that can <em>definitely happen</em> to the highest-profile inmate in the facility.</div>
+<div id="ln29" class="lnote ln-w"  style="left:28px;top:1858px;--rot:-1.5deg">So just to recap. A husband and wife built revolutionary software, and were <em>driven out of business</em> by the government that took it. The back door was installed at a CIA-adjacent weapons facility on sovereign land where <em>three people had already been killed</em> for asking questions.</div>
+<div id="ln30" class="lnote ln-w"  style="left:328px;top:1878px;--rot:1.5deg">The journalist who connected the story <em>died with his files missing.</em> The man who had distributed the software <em>died.</em></div>
+<div id="ln31" class="lnote ln-w"  style="left:628px;top:1898px;--rot:-1deg">And twenty-eight years later, under the <em>same Attorney General,</em> Jeffrey Epstein allegedly died in his jail cell.</div>
+<div id="ln32" class="lnote ln-y"  style="left:28px;top:168px;--rot:1.5deg">The FBI had a file on Robert Maxwell going back to the <em>nineteen fifties.</em> They watched him for decades. Yet he still managed to walk back-doored software into America's nuclear weapons facilities and later became one of the country's <em>largest textbook publishers.</em></div>
+<div id="ln33" class="lnote ln-b"  style="left:48px;top:1448px;--rot:-2deg">After he died, one daughter ran a sexual blackmail operation with Epstein, another became a bridge between Silicon Valley and Israeli intelligence, and another <em>built the FBI's search system</em> with the CIA's Chief Information Officer.</div>
+<div id="ln34" class="lnote ln-p"  style="left:280px;top:2050px;--rot:-1.5deg;font-size:15px">So I'm just curious whether the intelligence agencies are supposed to <em>connect the dots</em> —<br><br>or make sure <em>no one ever does.</em></div>
+
+</div><!-- end board -->
+
+<script>
+const B = [
+  {note:'ln0',  move:true,  cam:{x:130,y:120,s:1.1},   active:['pol-maxwell','doc-fbi'],                          strings:[],                                                   dur:14000},
+  {note:'ln1',  move:false, cam:null,                   active:['pol-maxwell'],                                   strings:[], pulse:'maxwell-death-badge',                       dur:7000},
+  {note:'ln2',  move:true,  cam:{x:200,y:550,s:1.0},  active:['hub-cia','inst-mossad'],                          strings:['s-cia-mossad'],                                     dur:10000},
+  {note:'ln3',  move:true,  cam:{x:130,y:330,s:1.1},   active:['pol-hamiltons','st-promis'],                      strings:['s-mx-ham'],                                         dur:11000},
+  {note:'ln4',  move:false, cam:null,                   active:['ill-db','st-promis'],                            strings:[],                                                   dur:11000},
+  {note:'ln5',  move:true,  cam:{x:460,y:550,s:1.1}, active:['hub-doj','pol-hamiltons'],                        strings:['s-doj-ham'],                                        dur:9000},
+  {note:'ln6',  move:false, cam:null,                   active:['hub-doj','doc-judge'],                           strings:[],                                                   dur:9000},
+  {note:'ln7',  move:true,  cam:{x:130,y:990,s:1.1},  active:['pol-wackenhut','inst-cabazon'],                   strings:['s-mx-wack'],                                        dur:11000},
+  {note:'ln8',  move:false, cam:null,                   active:['pol-wackenhut','inst-casey'],                    strings:['s-wack-casey','s-casey-cia'],                        dur:10000},
+  {note:'ln9',  move:false, cam:null,                   active:['pol-alvarez','pol-victims2','inst-cabazon'],      strings:['s-cab-alv'],                                        dur:11000},
+  {note:'ln10', move:false, cam:null,                   active:['pol-wackenhut','pol-geo'],                       strings:[],                                                   dur:12000},
+  {note:'ln11', move:true,  cam:{x:580,y:990,s:1.1}, active:['pol-rico','inst-cabazon'],                        strings:['s-rico-cab'],                                       dur:13000},
+  {note:'ln12', move:true,  cam:{x:130,y:120,s:1.0},   active:['pol-maxwell','ill-globe'],                        strings:['s-mx-tower'],                                       dur:9000},
+  {note:'ln13', move:true,  cam:{x:760,y:990,s:1.1}, active:['pol-tower','st-nuclear'],                         strings:['s-tower-nuc'],                                      dur:11000},
+  {note:'ln14', move:false, cam:null,                   active:['pol-tower','st-nuclear'],                        strings:[],                                                   dur:8000},
+  {note:'ln15', move:true,  cam:{x:590,y:330,s:1.1}, active:['pol-casolaro','oct-node'],                        strings:['s-cas-oct'],                                        dur:13000},
+  {note:'ln16', move:false, cam:null,                   active:['oct-node','inst-iran','inst-bcci'],               strings:['s-oct-iran','s-oct-bcci'],                          dur:10000},
+  {note:'ln17', move:true,  cam:{x:790,y:310,s:1.2},   active:['pol-standorf'],                                   strings:['s-cas-std'],                                        dur:9000},
+  {note:'ln18', move:true,  cam:{x:480,y:340,s:1.0}, active:['pol-casolaro','doc-bathtub'],                     strings:['s-cas-bath'],                                       dur:11000},
+  {note:'ln19', move:false, cam:null,                   active:['doc-bathtub'],                                   strings:[],                                                   dur:8500},
+  {note:'ln20', move:true,  cam:{x:130,y:120,s:1.2},   active:['pol-maxwell'],                                    strings:[], pulse:'maxwell-death-badge',                       dur:7500},
+  {note:'ln22', move:true,  cam:{x:490,y:760,s:1.1},  active:['pol-barr'],                                       strings:['s-barr-cov'],                                       dur:14000},
+  {note:'ln23', move:false, cam:null,                   active:['pol-barr','inst-bcci','inst-iran'],               strings:['s-barr-bcci','s-barr-iran'],                        dur:10000},
+  {note:'ln24', move:false, cam:null,                   active:['pol-barr','doc-coverup'],                        strings:[],                                                   dur:7000},
+  {note:'ln25', move:false, cam:null,                   active:['pol-barr','st-aug10'],                           strings:['s-barr-aug'],                                       dur:7000},
+  {note:'ln26', move:true,  cam:{x:680,y:1220,s:1.0}, active:['ill-aug10','pol-epstein'],                        strings:['s-aug-eps'],                                        dur:10000},
+  {note:'ln27', move:false, cam:null,                   active:['pol-epstein','doc-epsfails'],                    strings:[],                                                   dur:14000},
+  {note:'ln28', move:false, cam:null,                   active:['doc-epsfails'],                                  strings:[],                                                   dur:9000},
+  {note:'ln29', move:true,  cam:{x:200,y:350,s:0.82}, active:['pol-hamiltons','pol-wackenhut','pol-alvarez'],    strings:['s-mx-ham','s-wack-casey'],                          dur:14000},
+  {note:'ln30', move:true,  cam:{x:400,y:400,s:0.65},                   active:['pol-casolaro','pol-maxwell'],                    strings:['s-cas-bath','s-mx-eps'],                            dur:11000},
+  {note:'ln31', move:true,  cam:{x:540,y:800,s:0.82},                   active:['pol-barr','st-aug10','pol-epstein'],              strings:['s-barr-aug','s-aug-eps'],                           dur:11000},
+  {note:'ln32', move:true,  cam:{x:210,y:100,s:0.9},    active:['pol-maxwell','doc-fbi'],                          strings:['s-mx-fbi'],                                         dur:14000},
+  {note:'ln33', move:true,  cam:{x:2200,y:700,s:0.82},  active:['dau-ghislaine','dau-isabel','dau-christine','pol-epstein','hub-cia','hub-fbi'],
+    strings:['s-dau-g-eps','s-dau-i-mossad','s-dau-c-fbi','s-dau-c-alanwade','s-alanwade-cia'],                                                                                dur:12500},
+  {note:'ln34', move:true,  cam:{x:540,y:1200,s:0.38},
+    active:['pol-maxwell','pol-hamiltons','pol-casolaro','pol-standorf','pol-barr','pol-epstein',
+             'dau-ghislaine','dau-isabel','dau-christine','pol-wackenhut','pol-geo','pol-rico','pol-tower',
+             'hub-cia','hub-doj','hub-fbi','inst-mossad','inst-bcci','inst-iran','oct-node',
+             'inst-chiliad','inst-alanwade'],
+    strings:['s-mx-ham','s-doj-ham','s-mx-tower','s-mx-dau-g','s-dau-g-eps','s-cas-oct',
+             's-cas-std','s-barr-aug','s-aug-eps','s-cia-mossad','s-wack-casey','s-casey-cia','s-wack-geo',
+             's-oct-iran','s-oct-bcci','s-dau-i-mossad','s-dau-c-fbi','s-alanwade-cia',
+             's-mx-fbi','s-barr-doj','s-doj-fbi','s-chiliad-fbi'],
+    dur:17000}
+];
+
+const SD = [
+  {id:'s-mx-ham',        a:'pol-maxwell',   b:'pol-hamiltons'},
+  {id:'s-mx-wack',       a:'pol-maxwell',   b:'pol-wackenhut'},
+  {id:'s-wack-geo',      a:'pol-wackenhut', b:'pol-geo'},
+  {id:'s-mx-tower',      a:'pol-maxwell',   b:'pol-tower'},
+  {id:'s-mx-eps',        a:'pol-maxwell',   b:'pol-epstein'},
+  {id:'s-mx-dau-g',      a:'pol-maxwell',   b:'dau-ghislaine'},
+  {id:'s-mx-fbi',        a:'pol-maxwell',   b:'hub-fbi'},
+  {id:'s-doj-ham',       a:'hub-doj',       b:'pol-hamiltons'},
+  {id:'s-barr-doj',      a:'pol-barr',      b:'hub-doj'},
+  {id:'s-doj-fbi',       a:'hub-doj',       b:'hub-fbi'},
+  {id:'s-wack-casey',    a:'pol-wackenhut', b:'inst-casey'},
+  {id:'s-casey-cia',     a:'inst-casey',    b:'hub-cia'},
+  {id:'s-cab-alv',       a:'inst-cabazon',  b:'pol-alvarez'},
+  {id:'s-rico-cab',      a:'pol-rico',      b:'inst-cabazon'},
+  {id:'s-cas-oct',       a:'pol-casolaro',  b:'oct-node'},
+  {id:'s-cas-std',       a:'pol-casolaro',  b:'pol-standorf'},
+  {id:'s-cas-bath',      a:'pol-casolaro',  b:'doc-bathtub'},
+  {id:'s-oct-iran',      a:'oct-node',      b:'inst-iran'},
+  {id:'s-oct-bcci',      a:'oct-node',      b:'inst-bcci'},
+  {id:'s-tower-nuc',     a:'pol-tower',     b:'st-nuclear'},
+  {id:'s-barr-cov',      a:'pol-barr',      b:'doc-coverup'},
+  {id:'s-barr-aug',      a:'pol-barr',      b:'st-aug10'},
+  {id:'s-barr-bcci',     a:'pol-barr',      b:'inst-bcci'},
+  {id:'s-barr-iran',     a:'pol-barr',      b:'inst-iran'},
+  {id:'s-aug-eps',       a:'st-aug10',      b:'pol-epstein'},
+  {id:'s-dau-g-eps',     a:'dau-ghislaine', b:'pol-epstein'},
+  {id:'s-dau-i-mossad',  a:'dau-isabel',    b:'inst-mossad'},
+  {id:'s-dau-c-fbi',     a:'dau-christine', b:'hub-fbi'},
+  {id:'s-dau-c-alanwade',a:'dau-christine', b:'inst-alanwade'},
+  {id:'s-alanwade-cia',  a:'inst-alanwade', b:'hub-cia'},
+  {id:'s-chiliad-fbi',   a:'inst-chiliad',  b:'hub-fbi'},
+  {id:'s-cia-mossad',    a:'hub-cia',       b:'inst-mossad'},
+];
+
+// ─── CAMERA ─────────────────────────────────
+let currentScale=0.5, currentX=0, currentY=0;
+const boardEl=()=>document.getElementById('board');
+
+function applyTransform(x,y,s,animate){
+  currentX=x; currentY=y; currentScale=s;
+  const b=boardEl();
+  if(animate){b.classList.add('animating');}
+  else{b.classList.remove('animating');}
+  b.style.transform=`translate(${x}px,${y}px) scale(${s})`;
+  if(animate) setTimeout(()=>b.classList.remove('animating'),2100);
+}
+
+const CW=1080, CH=2350;
+function getViewport(){
+  // use visualViewport if available (more accurate on mobile Safari)
+  if(window.visualViewport){
+    return {w:window.visualViewport.width, h:window.visualViewport.height};
+  }
+  return {w:window.innerWidth, h:window.innerHeight};
+}
+function fitBoard(){
+  const {w:vw, h:vh} = getViewport();
+  const isMobile = vw < 900 || window.matchMedia('(pointer:coarse)').matches;
+  // reserve space: top (progress bar + some padding) + bottom (controls)
+  const padTop = isMobile ? 20 : 10;
+  const padBot = isMobile ? 90 : 80;
+  const availW = vw;
+  const availH = vh - padTop - padBot;
+  const s = Math.min(availW / CW, availH / CH) * (isMobile ? 0.95 : 0.9);
+  const x = (vw - CW * s) / 2;
+  const y = padTop + (availH - CH * s) / 2;
+  applyTransform(x, y, s, true);
+}
+window.addEventListener('resize', fitBoard);
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', fitBoard);
+}
+
+function setCamera(cam){
+  const {w:vw, h:vh} = getViewport();
+  const s = Math.min(cam.s, 1.4);
+  const isMobile = vw < 900 || window.matchMedia('(pointer:coarse)').matches;
+  // on mobile shift focal point up so node sits in upper-center, not behind controls
+  const focusY = isMobile ? vh * 0.38 : vh * 0.48;
+  const focusX = vw * 0.5;
+  applyTransform(-cam.x*s + focusX, -cam.y*s + focusY, s, true);
+}
+
+// ─── DRAG & ZOOM ────────────────────────────
+let dragging=false, dragStartX=0, dragStartY=0, camStartX=0, camStartY=0, dragMoved=false;
+document.addEventListener('mousedown',e=>{
+  if(e.target.closest('#ui')||e.target.closest('#title')) return;
+  dragging=true; dragMoved=false;
+  dragStartX=e.clientX; dragStartY=e.clientY;
+  camStartX=currentX; camStartY=currentY;
+  document.body.style.cursor='grabbing';
+});
+document.addEventListener('mousemove',e=>{
+  if(!dragging) return;
+  const dx=e.clientX-dragStartX, dy=e.clientY-dragStartY;
+  if(Math.abs(dx)+Math.abs(dy)>4) dragMoved=true;
+  applyTransform(camStartX+dx, camStartY+dy, currentScale, false);
+});
+document.addEventListener('mouseup',()=>{ dragging=false; document.body.style.cursor='default'; });
+// ─── PINCH ZOOM ─────────────────────────────
+let pinching=false, pinchDist=0;
+function getPinchDist(t){ return Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY); }
+function getPinchCenter(t){ return {x:(t[0].clientX+t[1].clientX)/2, y:(t[0].clientY+t[1].clientY)/2}; }
+
+document.addEventListener('touchstart',e=>{
+  if(e.target.closest('#ui')||e.target.closest('#tap-left')||e.target.closest('#tap-right')||e.target.closest('#title')) return;
+  if(e.touches.length===2){
+    pinching=true; dragging=false;
+    pinchDist=getPinchDist(e.touches);
+  } else if(e.touches.length===1){
+    dragging=true; dragMoved=false;
+    dragStartX=e.touches[0].clientX; dragStartY=e.touches[0].clientY;
+    camStartX=currentX; camStartY=currentY;
+  }
+},{passive:true});
+document.addEventListener('touchmove',e=>{
+  if(e.touches.length===2 && pinching){
+    const d=getPinchDist(e.touches);
+    const factor=d/pinchDist; pinchDist=d;
+    const c=getPinchCenter(e.touches);
+    const newS=Math.max(0.12,Math.min(3,currentScale*factor));
+    const wx=(c.x-currentX)/currentScale, wy=(c.y-currentY)/currentScale;
+    applyTransform(c.x-wx*newS, c.y-wy*newS, newS, false);
+    dragMoved=true;
+  } else if(e.touches.length===1&&dragging){
+    const dx=e.touches[0].clientX-dragStartX, dy=e.touches[0].clientY-dragStartY;
+    if(Math.abs(dx)+Math.abs(dy)>6) dragMoved=true;
+    applyTransform(camStartX+dx, camStartY+dy, currentScale, false);
+  }
+},{passive:true});
+document.addEventListener('touchend',e=>{
+  if(e.touches.length<2) pinching=false;
+  if(e.touches.length===0) dragging=false;
+});
+document.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const factor=e.deltaY>0?0.92:1.09;
+  const newS=Math.max(0.12,Math.min(3,currentScale*factor));
+  const wx=(e.clientX-currentX)/currentScale, wy=(e.clientY-currentY)/currentScale;
+  applyTransform(e.clientX-wx*newS, e.clientY-wy*newS, newS, false);
+},{passive:false});
+
+// ─── BEATS ──────────────────────────────────
+function ctr(id){
+  const e=document.getElementById(id);
+  if(!e) return{x:0,y:0};
+  return{x:e.offsetLeft+e.offsetWidth/2, y:e.offsetTop+e.offsetHeight/2};
+}
+function buildStrings(){
+  const svg=document.getElementById('strings');
+  SD.forEach(d=>{
+    const a=ctr(d.a), b=ctr(d.b);
+    const mx=(a.x+b.x)/2, my=(a.y+b.y)/2+35;
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.id=d.id; p.setAttribute('class','string');
+    p.setAttribute('d',`M${a.x} ${a.y} Q${mx} ${my} ${b.x} ${b.y}`);
+    svg.appendChild(p);
+  });
+}
+
+let cur=-1, tmr=null, paused=false;
+
+function applyBeat(n){
+  const b=B[n];
+  if(b.move && b.cam) setCamera(b.cam);
+  document.querySelectorAll('.node').forEach(el=>{
+    el.classList.remove('active');
+    if(b.active.includes(el.id)) el.classList.add('active');
+  });
+  document.querySelectorAll('.string').forEach(s=>{
+    s.classList.remove('active');
+    if(b.strings.includes(s.id)) s.classList.add('active');
+  });
+  document.querySelectorAll('.lnote').forEach(el=>el.classList.remove('show'));
+  if(b.note){ const el=document.getElementById(b.note); if(el) el.classList.add('show'); }
+  if(b.pulse){
+    const el=document.getElementById(b.pulse);
+    if(el){ el.classList.add('pulse'); setTimeout(()=>el.classList.remove('pulse'),b.dur-500); }
+  }
+  document.getElementById('pf').style.width=((n+1)/B.length*100)+'%';
+  document.getElementById('bn').textContent=`${n+1} / ${B.length}`;
+}
+
+function goTo(n, autoplay=true){
+  if(n<0||n>=B.length) return;
+  cur=n;
+  clearTimeout(tmr);
+  applyBeat(n);
+  if(autoplay&&!paused) tmr=setTimeout(()=>goTo(cur+1), B[n].dur);
+}
+
+function togglePause(){
+  paused=!paused;
+  document.getElementById('pause-btn').textContent=paused?'▶':'⏸';
+  document.getElementById('paused-badge').classList.toggle('show',paused);
+  if(!paused&&cur>=0) tmr=setTimeout(()=>goTo(cur+1),B[cur].dur);
+  else clearTimeout(tmr);
+}
+
+window.addEventListener('load',()=>{
+  buildStrings();
+  fitBoard();
+
+  // re-fit on orientation change
+  window.addEventListener('orientationchange',()=>setTimeout(fitBoard,400));
+
+  document.getElementById('title').addEventListener('click',()=>{
+    document.getElementById('title').classList.add('gone');
+    setTimeout(()=>goTo(0),1000);
+  });
+  document.getElementById('title').addEventListener('touchend',e=>{
+    e.preventDefault();
+    document.getElementById('title').classList.add('gone');
+    setTimeout(()=>goTo(0),1000);
+  },{passive:false});
+
+  // TAP ZONES — right side = advance, left side = back
+  document.getElementById('tap-right').addEventListener('touchend',e=>{
+    e.stopPropagation(); e.preventDefault();
+    if(paused){togglePause();return;}
+    clearTimeout(tmr); goTo(cur+1);
+  },{passive:false});
+  document.getElementById('tap-left').addEventListener('touchend',e=>{
+    e.stopPropagation(); e.preventDefault();
+    clearTimeout(tmr); goTo(Math.max(0,cur-1),!paused);
+  },{passive:false});
+
+  document.getElementById('pause-btn').addEventListener('click',e=>{e.stopPropagation();togglePause();});
+  document.getElementById('back-btn').addEventListener('click',e=>{e.stopPropagation();clearTimeout(tmr);goTo(Math.max(0,cur-1),!paused);});
+  document.getElementById('fwd-btn').addEventListener('click',e=>{e.stopPropagation();clearTimeout(tmr);goTo(cur+1,!paused);});
+  document.getElementById('reset-btn').addEventListener('click',e=>{e.stopPropagation();fitBoard();});
+  document.addEventListener('keydown',e=>{
+    if(e.code==='Space'){e.preventDefault();togglePause();}
+    if(e.code==='ArrowRight'){clearTimeout(tmr);goTo(cur+1,!paused);}
+    if(e.code==='ArrowLeft'){clearTimeout(tmr);goTo(Math.max(0,cur-1),!paused);}
+  });
+});
+</script>
+</body>
+</html>
