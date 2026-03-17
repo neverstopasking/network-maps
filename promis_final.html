@@ -13,7 +13,7 @@ body{background:#060609;overflow:hidden;width:100vw;height:100vh;user-select:non
 body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:2000;opacity:0.3}
 
 /* ── BOARD ── */
-#board{position:absolute;width:1100px;height:1900px;top:0;left:0;background:#060609;transform-origin:0 0}
+#board{position:absolute;width:1100px;height:2050px;top:0;left:0;background:#060609;transform-origin:0 0}
 #board.animating{transition:transform 1.8s cubic-bezier(0.77,0,0.175,1)}
 #strings{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
 .string{stroke:#ff2d55;stroke-width:1.2;fill:none;opacity:0.04;transition:opacity 1s,stroke-width 1s,filter 1s}
@@ -297,9 +297,10 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
   <div class="photo"><img src="mossad-logo.jpg" alt="Mossad" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;height:100%;object-fit:cover"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px">🌐</span></div>
   <div class="il">Mossad<br>Israeli Intel</div>
 </div>
-<div class="node inst i-casey" id="inst-casey" style="left:560px;top:882px">
-  <div class="photo"><img src="casey.jpg" alt="William Casey" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;height:100%;object-fit:cover"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px">🤵</span></div>
-  <div class="il">William Casey<br>CIA Director</div>
+<div class="node polaroid" id="inst-casey" style="left:560px;top:882px;width:148px;transform:rotate(-1deg)">
+  <div class="photo" style="height:136px"><img src="casey.jpg" alt="William Casey" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px">🤵</span></div>
+  <div class="cap">WILLIAM CASEY<br>CIA Director<br>Reagan Admin</div>
+  <div class="badge bi">👁️</div>
 </div>
 <div class="node polaroid" id="pol-barr" style="left:720px;top:870px;transform:rotate(-1.5deg)">
   <div class="photo"><img src="barr.jpg" alt="William Barr" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;height:100%;object-fit:cover"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px">⚖️</span></div>
@@ -315,7 +316,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 
 
 <!-- DONALD BARR -->
-<div class="node polaroid" id="pol-donald-barr" style="left:720px;top:1075px;width:148px;transform:rotate(1.5deg)">
+<div class="node polaroid" id="pol-donald-barr" style="left:850px;top:462px;width:148px;transform:rotate(1.5deg)">
   <div class="photo" style="height:136px"><img src="donald-barr.jpg" alt="Donald Barr" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px">🎓</span></div>
   <div class="cap"><div style="height:3px;background:#8a1a1a;margin:-5px -7px 4px -7px;opacity:0.8"></div>DONALD BARR<br>OSS Officer<br>Hired Epstein<br>at Dalton · 1973</div>
   <div class="badge bi">👁️</div>
@@ -327,7 +328,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
   <div class="cap"><div style="height:3px;background:#8a1a1a;margin:-5px -7px 4px -7px;opacity:0.8"></div>WACKENHUT CORP<br>CIA-Staffed Security</div>
   <div class="badge bi">👁️</div>
 </div>
-<div class="node polaroid" id="pol-geo" style="left:230px;top:1068px;transform:rotate(1.5deg)">
+<div class="node polaroid" id="pol-geo" style="left:320px;top:1068px;transform:rotate(1.5deg)">
   <div class="photo"><img src="geo-group.jpg" alt="GEO Group" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;height:100%;object-fit:cover"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px">🏢</span></div>
   <div class="cap"><div style="height:3px;background:#8a1a1a;margin:-5px -7px 4px -7px;opacity:0.8"></div>GEO GROUP<br>Largest For-Profit<br>Prison Co.<br>Record Profits · 2025</div>
   <div class="badge bl">💰</div>
@@ -341,9 +342,10 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
   <div class="cap"><div style="height:3px;background:#8a6a1a;margin:-5px -7px 4px -7px;opacity:0.8"></div>MICHAEL RICONOSCIUTO<br>Backdoor Installer</div>
   <div class="badge bi">👁️</div>
 </div>
-<div class="node inst i-casey" id="inst-brian" style="left:760px;top:1055px;width:150px">
-  <div class="photo"><img src="earl-brian.jpg" alt="Earl Brian" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;height:100%;object-fit:cover"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px">🤝</span></div>
-  <div class="il">Earl Brian<br>Reagan Admin<br>Arranged PROMIS theft<br>w/ Riconosciuto</div>
+<div class="node polaroid" id="inst-brian" style="left:760px;top:1055px;width:150px;width:148px;transform:rotate(1deg)">
+  <div class="photo" style="height:136px"><img src="earl-brian.jpg" alt="Earl Brian" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px">🤝</span></div>
+  <div class="cap">EARL BRIAN<br>Reagan Admin<br>Arranged PROMIS theft<br>w/ Riconosciuto</div>
+  <div class="badge bi">👁️</div>
 </div>
 <div class="node polaroid" id="pol-tower" style="left:920px;top:1055px;transform:rotate(-1.5deg)">
   <div class="photo"><img src="tower.jpg" alt="Senator John Tower" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;height:100%;object-fit:cover"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px">🏛️</span></div>
@@ -396,9 +398,10 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 </div>
 
 <!-- ══ ROW 10: ALAN WADE + CHILIAD ══ -->
-<div class="node inst i-alanwade" id="inst-alanwade" style="left:730px;top:1590px">
-  <div class="photo"><img src="alan-wade.jpg" alt="Alan Wade" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;height:100%;object-fit:cover"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px">💾</span></div>
-  <div class="il">Alan Wade<br>CIA Chief Info Officer<br>Co-founded Chiliad</div>
+<div class="node polaroid" id="inst-alanwade" style="left:730px;top:1590px;width:148px;transform:rotate(-1.5deg)">
+  <div class="photo" style="height:136px"><img src="alan-wade.jpg" alt="Alan Wade" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px">💾</span></div>
+  <div class="cap">ALAN WADE<br>CIA Chief Info Officer<br>Co-founded Chiliad<br>w/ Christine Maxwell</div>
+  <div class="badge bi">👁️</div>
 </div>
 <div class="node inst i-chiliad" id="inst-chiliad" style="left:890px;top:1590px">
   <div class="photo"><img src="chiliad-logo.jpg" alt="Chiliad" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;height:100%;object-fit:cover"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px">🔗</span></div>
@@ -491,22 +494,22 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 
 <!-- OUTRO / RECAP — placed at bottom, full width -->
 <!-- ln29: recap pt1 → wide shot -->
-<div id="ln29" class="lnote ln-w" style="left:50px;top:1760px;--rot:-1deg">So just to recap. A husband and wife built revolutionary software, and were <em>driven out of business</em> by the government that took it. The back door was installed at a CIA-adjacent weapons facility on sovereign land where <em>three people had already been killed</em> for asking questions.</div>
+<div id="ln29" class="lnote ln-w" style="left:50px;top:1800px;--rot:-1deg">So just to recap. A husband and wife built revolutionary software, and were <em>driven out of business</em> by the government that took it. The back door was installed at a CIA-adjacent weapons facility on sovereign land where <em>three people had already been killed</em> for asking questions.</div>
 
 <!-- ln30: recap pt2 -->
-<div id="ln30" class="lnote ln-w" style="left:380px;top:1760px;--rot:1.5deg">The journalist who connected the story <em>died with his files missing.</em> The man who had distributed the software <em>died.</em></div>
+<div id="ln30" class="lnote ln-w" style="left:380px;top:1800px;--rot:1.5deg">The journalist who connected the story <em>died with his files missing.</em> The man who had distributed the software <em>died.</em></div>
 
 <!-- ln31: recap pt3 -->
-<div id="ln31" class="lnote ln-w" style="left:700px;top:1760px;--rot:-1deg">And twenty-eight years later, under the <em>same Attorney General,</em> Jeffrey Epstein allegedly died in his jail cell.</div>
+<div id="ln31" class="lnote ln-w" style="left:700px;top:1800px;--rot:-1deg">And twenty-eight years later, under the <em>same Attorney General,</em> Jeffrey Epstein allegedly died in his jail cell.</div>
 
 <!-- ln32: FBI file / Maxwell outro → near Maxwell+doc-fbi -->
 <div id="ln32" class="lnote ln-y" style="left:230px;top:1060px;--rot:1.5deg">The FBI had a file on Robert Maxwell going back to the <em>nineteen fifties.</em> They watched him for decades. Yet he still managed to walk back-doored software into America's nuclear weapons facilities and later became one of the country's <em>largest textbook publishers.</em></div>
 
 <!-- ln33: daughters → near daughter row -->
-<div id="ln33" class="lnote ln-b" style="left:50px;top:1760px;--rot:-1.5deg">After he died, one daughter ran a sexual blackmail operation with Epstein, another became a bridge between Silicon Valley and Israeli intelligence, and another <em>built the FBI's search system</em> with the CIA's Chief Information Officer.</div>
+<div id="ln33" class="lnote ln-b" style="left:50px;top:1800px;--rot:-1.5deg">After he died, one daughter ran a sexual blackmail operation with Epstein, another became a bridge between Silicon Valley and Israeli intelligence, and another <em>built the FBI's search system</em> with the CIA's Chief Information Officer.</div>
 
 <!-- ln34: closing question → bottom center -->
-<div id="ln34" class="lnote ln-p" style="left:380px;top:1900px;--rot:-1deg;font-size:14px;width:300px">So I'm just curious whether the intelligence agencies are supposed to <em>connect the dots</em> —<br><br>or make sure <em>no one ever does.</em></div>
+<div id="ln34" class="lnote ln-p" style="left:380px;top:1960px;--rot:-1deg;font-size:14px;width:300px">So I'm just curious whether the intelligence agencies are supposed to <em>connect the dots</em> —<br><br>or make sure <em>no one ever does.</em></div>
 
 </div><!-- end board -->
 
@@ -516,6 +519,11 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 // Nodes not in "active" list stay dim. Every node listed has a matching DOM id.
 const B = [
   // 0: Opening — Maxwell + FBI file
+    // BEAT 0: Full board — everything lit, zoomed out to show the whole map
+  {note:null, move:true, cam:{x:540,y:1000,s:0.32},
+   active:['pol-maxwell','pol-hamiltons','pol-casolaro','pol-standorf','hub-cia','hub-doj','hub-fbi','pol-eitan','inst-mossad','inst-casey','pol-barr','pol-epstein','pol-donald-barr','pol-wackenhut','pol-geo','inst-cabazon','pol-rico','inst-brian','pol-tower','oct-node','inst-iran','inst-bcci','pol-alvarez','pol-victims2','dau-ghislaine','dau-isabel','dau-christine','inst-alanwade','inst-chiliad'],
+   strings:['s-mx-ham','s-mx-wack','s-mx-tower','s-mx-eps','s-mx-dau-g','s-mx-fbi','s-doj-ham','s-doj-fbi','s-barr-doj','s-barr-aug','s-barr-bcci','s-barr-iran','s-aug-eps','s-wack-casey','s-wack-geo','s-geo-doj','s-casey-cia','s-cab-alv','s-rico-cab','s-cas-oct','s-cas-std','s-cas-bath','s-oct-iran','s-oct-bcci','s-tower-nuc','s-eitan-mossad','s-eitan-mx','s-cia-mossad','s-dau-g-eps','s-dau-i-mossad','s-dau-c-fbi','s-dau-c-alanwade','s-alanwade-cia','s-brian-rico','s-brian-cab','s-chiliad-fbi']},
+  // BEAT 1: Begin story — Maxwell intro
   {note:'ln0', move:true, cam:{x:294,y:790,s:0.56},
    active:['pol-maxwell','doc-fbi'], strings:[]},
 
@@ -647,7 +655,7 @@ const B = [
    active:['dau-ghislaine','dau-isabel','dau-christine','pol-epstein','inst-mossad','hub-fbi'], strings:['s-dau-g-eps','s-dau-i-mossad','s-dau-c-fbi']},
 
   // 33: Closing question — full board pullback, everything lights up
-  {note:'ln34', move:true, cam:{x:930,y:960,s:0.74},
+  {note:'ln34', move:true, cam:{x:540,y:1000,s:0.38},
    active:['pol-maxwell','pol-hamiltons','pol-casolaro','pol-standorf','pol-barr','pol-epstein',
            'dau-ghislaine','dau-isabel','dau-christine','pol-wackenhut','pol-geo','pol-rico','pol-tower',
            'pol-alvarez','pol-victims2','pol-donald-barr','hub-cia','hub-doj','hub-fbi',
@@ -714,7 +722,7 @@ function getViewport(){
     ? {w:window.visualViewport.width, h:window.visualViewport.height}
     : {w:window.innerWidth, h:window.innerHeight};
 }
-const CW=1100, CH=1900;
+const CW=1100, CH=2050;
 function fitBoard(){
   const {w:vw,h:vh}=getViewport();
   const isMobile=vw<900||window.matchMedia('(pointer:coarse)').matches;
