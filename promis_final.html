@@ -510,11 +510,11 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 const B = [
   // 0: Opening — Maxwell + FBI file
     // BEAT 0: Full board — everything lit, zoomed out to show the whole map
-  {note:null, move:true, cam:{x:690,y:1100,s:0.32},
+  {note:null, move:true, cam:{x:758,y:1145,s:0.35},
    active:['pol-maxwell','doc-fbi','st-globe','pol-hamiltons','st-promis','doc-judge','st-aug10','doc-coverup','pol-casolaro','pol-standorf','doc-bathtub','doc-epsfails','hub-cia','pol-eitan','inst-mossad','inst-casey','pol-barr','pol-epstein','pol-donald-barr','pol-wackenhut','pol-geo','inst-cabazon','pol-rico','inst-brian','pol-tower','oct-node','inst-iran','inst-bcci','inst-nuclear','pol-alvarez','pol-victims2','dau-ghislaine','dau-isabel','dau-christine','inst-alanwade','inst-chiliad','st-coincidence'],
    strings:['s-doj-ham','s-mx-ham','s-mx-wack','s-mx-tower','s-tower-nuclear','s-mx-eps','s-mx-dau-g','s-mx-fbi','s-barr-aug','s-barr-bcci','s-barr-iran','s-aug-eps','s-wack-casey','s-wack-geo','s-cab-alv','s-rico-cab','s-cas-oct','s-cas-std','s-cas-bath','s-oct-iran','s-oct-bcci','s-eitan-mossad','s-eitan-mx','s-dau-g-eps','s-dau-i-mossad','s-dau-c-alanwade','s-brian-rico','s-brian-cab','s-dbarr-wbarr','s-dbarr-eps','s-dbarr-cia']},
   // BEAT 1: Begin story — Maxwell intro
-  {note:'ln0', move:true, cam:{x:236,y:794,s:0.74},
+  {note:'ln0', move:true, cam:{x:138,y:838,s:0.85},
    active:['pol-maxwell','doc-fbi'], strings:[]},
 
   // 1: "kept ending up dead" — Maxwell death badge pulses
@@ -522,11 +522,11 @@ const B = [
    active:['pol-maxwell'], strings:[], pulse:'maxwell-death-badge'},
 
   // 2: CIA/Mossad partnership — show CIA hub + Mossad
-  {note:'ln2', move:true, cam:{x:434,y:999,s:0.56},
+  {note:'ln2', move:true, cam:{x:424,y:1025,s:0.85},
    active:['hub-cia','inst-mossad','pol-eitan'], strings:['s-eitan-mossad']},
 
   // 3: Hamiltons + PROMIS — Hamiltons + st-promis
-  {note:'ln3', move:true, cam:{x:362,y:500,s:0.72},
+  {note:'ln3', move:true, cam:{x:392,y:400,s:0.85},
    active:['pol-hamiltons','st-promis'], strings:[]},
 
   // 4: PROMIS description — add the db illustration context
@@ -534,15 +534,15 @@ const B = [
    active:['pol-hamiltons','st-promis'], strings:[]},
 
   // 5: DOJ took it — DOJ hub lights up
-  {note:'ln5', move:true, cam:{x:390,y:600,s:0.68},
+  {note:'ln5', move:true, cam:{x:528,y:682,s:0.81},
    active:['pol-hamiltons','st-promis','hub-cia'], strings:['s-doj-ham']},
 
   // 6: Judge ruling — doc-judge zoomed in tight
-  {note:'ln6', move:true, cam:{x:430,y:430,s:0.90},
+  {note:'ln6', move:true, cam:{x:543,y:502,s:0.85},
    active:['doc-judge'], strings:[]},
 
   // 7: Wackenhut/Cabazon — Wackenhut + Cabazon
-  {note:'ln7', move:true, cam:{x:892,y:1623,s:0.72},
+  {note:'ln7', move:true, cam:{x:892,y:1636,s:0.85},
    active:['pol-wackenhut','inst-cabazon'], strings:[]},
 
   // 8: Wackenhut/Casey — add Casey + CIA string
@@ -550,39 +550,39 @@ const B = [
    active:['pol-wackenhut','inst-casey','hub-cia'], strings:['s-wack-casey']},
 
   // 9: Alvarez murders — victims light up
-  {note:'ln9', move:true, cam:{x:947,y:1518,s:0.76},
+  {note:'ln9', move:true, cam:{x:792,y:1810,s:0.85},
    active:['pol-alvarez','pol-victims2','inst-cabazon'], strings:['s-cab-alv']},
 
   // 10: GEO Group — Wackenhut + GEO + DOJ connection
-  {note:'ln10', move:true, cam:{x:730,y:1150,s:0.48},
+  {note:'ln10', move:true, cam:{x:799,y:1316,s:0.52},
    active:['pol-wackenhut','pol-geo','hub-cia'], strings:['s-wack-geo','s-wack-doj','s-geo-doj']},
 
   // 11: Riconosciuto — Rico + Cabazon + Earl Brian + Wackenhut
-  {note:'ln11', move:true, cam:{x:1049,y:1577,s:0.62},
+  {note:'ln11', move:true, cam:{x:1065,y:1586,s:0.85},
    active:['pol-rico','inst-cabazon','inst-brian','pol-wackenhut'], strings:['s-rico-cab','s-brian-rico','s-brian-cab','s-wack-casey']},
 
   // 12: Maxwell distributed worldwide — Maxwell + globe sticky
-  {note:'ln12', move:true, cam:{x:247,y:940,s:0.72},
+  {note:'ln12', move:true, cam:{x:176,y:972,s:0.85},
    active:['pol-maxwell','st-globe','pol-eitan','st-promis'], strings:['s-eitan-mx']},
 
   // 13: Tower/Sandia/Los Alamos — Tower + nuclear sticky
-  {note:'ln13', move:true, cam:{x:198,y:859,s:0.52},
+  {note:'ln13', move:true, cam:{x:231,y:1064,s:0.85},
    active:['pol-tower','pol-maxwell','st-promis','inst-nuclear'], strings:['s-mx-tower','s-tower-nuclear']},
 
   // 15: Casolaro/Octopus — Casolaro + Octopus
-  {note:'ln15', move:true, cam:{x:856,y:406,s:0.62},
+  {note:'ln15', move:true, cam:{x:854,y:396,s:0.77},
    active:['pol-casolaro','oct-node'], strings:['s-cas-oct']},
 
   // 16: Octopus branches — Iran + BCCI
-  {note:'ln16', move:true, cam:{x:1034,y:299,s:0.68},
+  {note:'ln16', move:true, cam:{x:1032,y:319,s:0.85},
    active:['oct-node','inst-iran','inst-bcci'], strings:['s-oct-iran','s-oct-bcci']},
 
   // 17: Standorf beaten — Standorf
-  {note:'ln17', move:true, cam:{x:874,y:602,s:0.74},
+  {note:'ln17', move:true, cam:{x:874,y:592,s:0.85},
    active:['pol-standorf','pol-casolaro'], strings:['s-cas-std']},
 
   // 18: Casolaro bathtub — Casolaro + bathtub doc
-  {note:'ln18', move:true, cam:{x:790,y:677,s:0.70},
+  {note:'ln18', move:true, cam:{x:898,y:698,s:0.85},
    active:['pol-casolaro','doc-bathtub'], strings:['s-cas-bath']},
 
   // 19: embalmed — bathtub doc alone
@@ -590,31 +590,31 @@ const B = [
    active:['doc-bathtub'], strings:[]},
 
   // 20: Maxwell falls off yacht — Maxwell death badge pulses
-  {note:'ln20', move:true, cam:{x:236,y:848,s:0.76},
+  {note:'ln20', move:true, cam:{x:138,y:838,s:0.85},
    active:['pol-maxwell'], strings:[], pulse:'maxwell-death-badge'},
 
   // 21: Barr becomes AG — Barr lights up
-  {note:'ln22', move:true, cam:{x:1150,y:761,s:0.74},
+  {note:'ln22', move:true, cam:{x:1078,y:822,s:0.85},
    active:['pol-barr','pol-donald-barr','hub-cia'], strings:['s-dbarr-wbarr']},
 
   // 22: Barr/BCCI/Iran-Contra — Barr + BCCI + Iran
-  {note:'ln23', move:false, cam:null,
+  {note:'ln23', move:true, cam:{x:1025,y:670,s:0.55},
    active:['pol-barr','inst-bcci','inst-iran','hub-cia'], strings:['s-barr-bcci','s-barr-iran']},
 
   // 23: Cover-Up General — Barr + coverup doc
-  {note:'ln24', move:true, cam:{x:1066,y:938,s:0.74},
+  {note:'ln24', move:true, cam:{x:906,y:908,s:0.85},
    active:['pol-barr','doc-coverup','hub-cia'], strings:[]},
 
   // 24: 28 years later — st-aug10
-  {note:'ln25', move:true, cam:{x:1120,y:735,s:0.76},
+  {note:'ln25', move:true, cam:{x:906,y:908,s:0.85},
    active:['st-aug10','pol-barr','hub-cia'], strings:['s-barr-aug']},
 
   // 25: Epstein dies Aug 10 — Epstein + aug10 sticky
-  {note:'ln26', move:true, cam:{x:1150,y:780,s:0.72},
+  {note:'ln26', move:true, cam:{x:1295,y:944,s:0.85},
    active:['pol-epstein','st-aug10'], strings:['s-aug-eps']},
 
   // 26: Jail failures — doc-epsfails
-  {note:'ln27', move:true, cam:{x:1150,y:963,s:0.74},
+  {note:'ln27', move:true, cam:{x:1295,y:944,s:0.85},
    active:['pol-epstein','doc-epsfails'], strings:[]},
 
   // 27: coincidences — hold on epsfails
@@ -622,30 +622,30 @@ const B = [
    active:['st-coincidence'], strings:[]},
 
   // 28: RECAP — wide view showing everything
-  {note:'ln29', move:true, cam:{x:690,y:1000,s:0.34},
+  {note:'ln29', move:true, cam:{x:792,y:1381,s:0.4},
    active:['pol-hamiltons','pol-wackenhut','pol-alvarez','inst-cabazon'],
    strings:['s-wack-casey','s-cab-alv']},
 
   // 29: recap pt2 — journalist + Maxwell
-  {note:'ln30', move:false, cam:null,
+  {note:'ln30', move:true, cam:{x:629,y:674,s:0.56},
    active:['pol-casolaro','pol-maxwell','pol-standorf'],
    strings:['s-cas-std','s-eitan-mx']},
 
   // 30: recap pt3 — Barr + Epstein
-  {note:'ln31', move:false, cam:null,
+  {note:'ln31', move:true, cam:{x:1222,y:898,s:0.8},
    active:['pol-barr','pol-epstein','st-aug10'],
    strings:['s-barr-aug','s-aug-eps']},
 
   // 31: FBI file outro — Maxwell + FBI doc
-  {note:'ln32', move:true, cam:{x:236,y:794,s:0.74},
+  {note:'ln32', move:true, cam:{x:138,y:838,s:0.85},
    active:['pol-maxwell','doc-fbi'], strings:['s-mx-fbi']},
 
   // 32: Daughters — all three daughters
-  {note:'ln33', move:true, cam:{x:687,y:1260,s:0.68},
+  {note:'ln33', move:true, cam:{x:609,y:1380,s:0.53},
    active:['dau-ghislaine','dau-isabel','dau-christine','pol-epstein','inst-mossad','inst-alanwade','inst-chiliad','st-coincidence','hub-cia'], strings:['s-dau-g-eps','s-dau-i-mossad','s-dau-c-alanwade','s-wade-cia']},
 
   // 33: Closing question — full board pullback, everything lights up
-  {note:'ln34', move:true, cam:{x:690,y:1100,s:0.38},
+  {note:'ln34', move:true, cam:{x:758,y:1145,s:0.35},
    active:['pol-maxwell','doc-fbi','st-globe','pol-hamiltons','st-promis','doc-judge','st-aug10','doc-coverup','pol-casolaro','pol-standorf','doc-bathtub','doc-epsfails','hub-cia','pol-eitan','inst-mossad','inst-casey','pol-barr','pol-epstein','pol-donald-barr','pol-wackenhut','pol-geo','inst-cabazon','pol-rico','inst-brian','pol-tower','oct-node','inst-iran','inst-bcci','inst-nuclear','pol-alvarez','pol-victims2','dau-ghislaine','dau-isabel','dau-christine','inst-alanwade','inst-chiliad','st-coincidence'],
    strings:['s-mx-ham','s-mx-wack','s-mx-tower','s-mx-dau-g',
             's-wack-casey','s-cab-alv','s-rico-cab',
