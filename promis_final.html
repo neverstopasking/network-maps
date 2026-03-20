@@ -352,7 +352,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
   <div class="photo" style="height:186px"><img src="cabazon.jpg" alt="Cabazon Indian Reservation" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;height:100%;object-fit:cover;display:block;object-position:top center"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px">🏕️</span></div>
   <div class="il">Cabazon<br>Native American<br>Reservation<br>Sovereign Land</div>
 </div>
-<div class="node polaroid c-cia" id="pol-rico" style="left:1138px;top:1478px;transform:rotate(2.5deg)">
+<div class="node polaroid c-cia" id="pol-rico" style="left:1200px;top:1530px;transform:rotate(2.5deg)">
   <div class="photo" style="height:186px"><img src="riconosciuto.jpg" alt="Michael Riconosciuto" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:100%;height:100%;object-fit:cover;display:block;object-position:top center"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:48px">💻</span></div>
   <div class="cap"><div style="height:3px;background:#881111;margin:-5px -7px 4px -7px;opacity:0.8"></div>MICHAEL RICONOSCIUTO<br>Backdoor Installer</div>
   <div class="badge bi">👁️</div>
@@ -496,6 +496,8 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 
 <!-- ln33: daughters → near daughter row -->
 
+<!-- st-coincidence: ironic sticky for slide 28 -->
+<div class="node sticky sy" id="st-coincidence" style="left:1050px;top:920px;transform:rotate(1.5deg)">COMPLETELY<br>NORMAL<br>SEQUENCE<br>OF EVENTS<br>👍</div>
 <!-- ln34: closing question → bottom center -->
 
 </div><!-- end board -->
@@ -508,7 +510,7 @@ const B = [
   // 0: Opening — Maxwell + FBI file
     // BEAT 0: Full board — everything lit, zoomed out to show the whole map
   {note:null, move:true, cam:{x:690,y:1100,s:0.32},
-   active:['pol-maxwell','doc-fbi','st-globe','pol-hamiltons','st-promis','doc-judge','st-aug10','doc-coverup','pol-casolaro','pol-standorf','doc-bathtub','doc-epsfails','hub-cia','pol-eitan','inst-mossad','inst-casey','pol-barr','pol-epstein','pol-donald-barr','pol-wackenhut','pol-geo','inst-cabazon','pol-rico','inst-brian','pol-tower','oct-node','inst-iran','inst-bcci','inst-nuclear','pol-alvarez','pol-victims2','dau-ghislaine','dau-isabel','dau-christine','inst-alanwade','inst-chiliad'],
+   active:['pol-maxwell','doc-fbi','st-globe','pol-hamiltons','st-promis','doc-judge','st-aug10','doc-coverup','pol-casolaro','pol-standorf','doc-bathtub','doc-epsfails','hub-cia','pol-eitan','inst-mossad','inst-casey','pol-barr','pol-epstein','pol-donald-barr','pol-wackenhut','pol-geo','inst-cabazon','pol-rico','inst-brian','pol-tower','oct-node','inst-iran','inst-bcci','inst-nuclear','pol-alvarez','pol-victims2','dau-ghislaine','dau-isabel','dau-christine','inst-alanwade','inst-chiliad','st-coincidence'],
    strings:['s-doj-ham','s-mx-ham','s-mx-wack','s-mx-tower','s-tower-nuclear','s-mx-eps','s-mx-dau-g','s-mx-fbi','s-barr-aug','s-barr-bcci','s-barr-iran','s-aug-eps','s-wack-casey','s-wack-geo','s-cab-alv','s-rico-cab','s-cas-oct','s-cas-std','s-cas-bath','s-oct-iran','s-oct-bcci','s-eitan-mossad','s-eitan-mx','s-dau-g-eps','s-dau-i-mossad','s-dau-c-alanwade','s-brian-rico','s-brian-cab','s-dbarr-wbarr','s-dbarr-eps','s-dbarr-cia']},
   // BEAT 1: Begin story — Maxwell intro
   {note:'ln0', move:true, cam:{x:236,y:794,s:0.74},
@@ -551,8 +553,8 @@ const B = [
    active:['pol-alvarez','pol-victims2','inst-cabazon'], strings:['s-cab-alv']},
 
   // 10: GEO Group — Wackenhut + GEO + DOJ connection
-  {note:'ln10', move:true, cam:{x:866,y:1502,s:0.68},
-   active:['pol-wackenhut','pol-geo'], strings:['s-wack-geo']},
+  {note:'ln10', move:true, cam:{x:730,y:1150,s:0.48},
+   active:['pol-wackenhut','pol-geo','hub-cia'], strings:['s-wack-geo','s-wack-doj','s-geo-doj']},
 
   // 11: Riconosciuto — Rico + Cabazon + Earl Brian + Wackenhut
   {note:'ln11', move:true, cam:{x:1049,y:1577,s:0.62},
@@ -592,19 +594,19 @@ const B = [
 
   // 21: Barr becomes AG — Barr lights up
   {note:'ln22', move:true, cam:{x:1150,y:761,s:0.74},
-   active:['pol-barr','pol-donald-barr'], strings:['s-dbarr-wbarr']},
+   active:['pol-barr','pol-donald-barr','hub-cia'], strings:['s-dbarr-wbarr']},
 
   // 22: Barr/BCCI/Iran-Contra — Barr + BCCI + Iran
   {note:'ln23', move:false, cam:null,
-   active:['pol-barr','inst-bcci','inst-iran'], strings:['s-barr-bcci','s-barr-iran']},
+   active:['pol-barr','inst-bcci','inst-iran','hub-cia'], strings:['s-barr-bcci','s-barr-iran']},
 
   // 23: Cover-Up General — Barr + coverup doc
   {note:'ln24', move:true, cam:{x:1066,y:938,s:0.74},
-   active:['pol-barr','doc-coverup'], strings:[]},
+   active:['pol-barr','doc-coverup','hub-cia'], strings:[]},
 
   // 24: 28 years later — st-aug10
   {note:'ln25', move:true, cam:{x:1120,y:735,s:0.76},
-   active:['st-aug10','pol-barr'], strings:['s-barr-aug']},
+   active:['st-aug10','pol-barr','hub-cia'], strings:['s-barr-aug']},
 
   // 25: Epstein dies Aug 10 — Epstein + aug10 sticky
   {note:'ln26', move:true, cam:{x:1150,y:780,s:0.72},
@@ -616,7 +618,7 @@ const B = [
 
   // 27: coincidences — hold on epsfails
   {note:'ln28', move:false, cam:null,
-   active:['doc-epsfails'], strings:[]},
+   active:['st-coincidence'], strings:[]},
 
   // 28: RECAP — wide view showing everything
   {note:'ln29', move:true, cam:{x:690,y:1000,s:0.34},
@@ -639,11 +641,11 @@ const B = [
 
   // 32: Daughters — all three daughters
   {note:'ln33', move:true, cam:{x:687,y:1260,s:0.68},
-   active:['dau-ghislaine','dau-isabel','dau-christine','pol-epstein','inst-mossad','inst-alanwade','inst-chiliad'], strings:['s-dau-g-eps','s-dau-i-mossad']},
+   active:['dau-ghislaine','dau-isabel','dau-christine','pol-epstein','inst-mossad','inst-alanwade','inst-chiliad','st-coincidence','hub-cia'], strings:['s-dau-g-eps','s-dau-i-mossad','s-dau-c-alanwade','s-wade-cia']},
 
   // 33: Closing question — full board pullback, everything lights up
   {note:'ln34', move:true, cam:{x:690,y:1100,s:0.38},
-   active:['pol-maxwell','doc-fbi','st-globe','pol-hamiltons','st-promis','doc-judge','st-aug10','doc-coverup','pol-casolaro','pol-standorf','doc-bathtub','doc-epsfails','hub-cia','pol-eitan','inst-mossad','inst-casey','pol-barr','pol-epstein','pol-donald-barr','pol-wackenhut','pol-geo','inst-cabazon','pol-rico','inst-brian','pol-tower','oct-node','inst-iran','inst-bcci','inst-nuclear','pol-alvarez','pol-victims2','dau-ghislaine','dau-isabel','dau-christine','inst-alanwade','inst-chiliad'],
+   active:['pol-maxwell','doc-fbi','st-globe','pol-hamiltons','st-promis','doc-judge','st-aug10','doc-coverup','pol-casolaro','pol-standorf','doc-bathtub','doc-epsfails','hub-cia','pol-eitan','inst-mossad','inst-casey','pol-barr','pol-epstein','pol-donald-barr','pol-wackenhut','pol-geo','inst-cabazon','pol-rico','inst-brian','pol-tower','oct-node','inst-iran','inst-bcci','inst-nuclear','pol-alvarez','pol-victims2','dau-ghislaine','dau-isabel','dau-christine','inst-alanwade','inst-chiliad','st-coincidence'],
    strings:['s-mx-ham','s-mx-wack','s-mx-tower','s-mx-dau-g',
             's-wack-casey','s-cab-alv','s-rico-cab',
             's-cas-oct','s-cas-std','s-barr-aug','s-aug-eps','s-barr-bcci','s-barr-iran',
@@ -654,6 +656,8 @@ const B = [
 // ═══ STRINGS ═══
 const SD = [
   {id:'s-doj-ham', a:'pol-hamiltons', b:'hub-cia'},
+  {id:'s-wack-doj', a:'pol-wackenhut', b:'hub-cia'},
+  {id:'s-geo-doj', a:'pol-geo', b:'hub-cia'},
   {id:'s-mx-ham', a:'pol-maxwell', b:'pol-hamiltons'},
   {id:'s-dbarr-wbarr', a:'pol-donald-barr', b:'pol-barr'},
   {id:'s-dbarr-eps', a:'pol-donald-barr', b:'pol-epstein'},
@@ -682,6 +686,7 @@ const SD = [
   {id:'s-dau-g-eps', a:'dau-ghislaine', b:'pol-epstein'},
   {id:'s-dau-i-mossad', a:'dau-isabel', b:'inst-mossad'},
   {id:'s-dau-c-alanwade', a:'dau-christine', b:'inst-alanwade'},
+  {id:'s-wade-cia', a:'inst-alanwade', b:'hub-cia'},
   {id:'s-brian-rico', a:'inst-brian', b:'pol-rico'},
   {id:'s-brian-cab', a:'inst-brian', b:'inst-cabazon'},
 ];
